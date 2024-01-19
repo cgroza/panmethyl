@@ -2,6 +2,10 @@ Bootstrap: library
 From: ubuntu:22.04
 
 %post
+    TZ=Etc/UTC && \
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+        echo $TZ > /etc/timezone
+
     apt-get -y update
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
