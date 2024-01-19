@@ -6,7 +6,7 @@ From: ubuntu:20.04
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get update
-    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf
+    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget
 
     apt-get -y install \
     libssl-dev \
@@ -60,7 +60,7 @@ From: ubuntu:20.04
     pip3 install numpy==1.21
     pip3 install pysam cigar
 
-    R --slave -e 'install.packages(c("XML", "dplyr", "stringr", "tidyr", "readr", "vcfR", "optparse"), repos="https://cloud.r-project.org/")'
+    # R --slave -e 'install.packages(c("XML", "dplyr", "stringr", "tidyr", "readr", "vcfR", "optparse"), repos="https://cloud.r-project.org/")'
 
     cd $HOME
 
@@ -73,6 +73,12 @@ From: ubuntu:20.04
     ${HOME}/miniconda/bin/conda install -y -c bioconda graphaligner
     cp ${HOME}/miniconda/bin/GraphAligner /usr/local/bin/
     rm -rf ~/miniconda
+
+
+    apt-get remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget
+    apt-get autoremove --assume-yes
+    apt-get clean --assume-yes
+
 
 %environment
     export LC_ALL=C
