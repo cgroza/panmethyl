@@ -10,13 +10,25 @@ From: ubuntu:22.04
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get update
-    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget
+    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget rustc pypy3
 
     apt-get -y install \
     libssl-dev \
     libxml2-dev \
     libcurl4-openssl-dev \
     curl libgomp1
+
+    pypy3 -m ensurepip
+    pypy3 -m pip install numpy==1.21
+    pypy3 -m pip install pysam cigar
+    pip3 install numpy==1.21
+
+    git clone https://github.com/cgroza/panmethyl
+    cd panmethyl/tagtobed
+    cargo build --release 
+    cp target/release/tagtobed /usr/local/bin
+    cd ${HOME}
+    rm -rf panmethyl
 
     git clone --recursive https://github.com/samtools/htslib.git
     cd htslib
@@ -61,8 +73,6 @@ From: ubuntu:22.04
     cd ${HOME}
     rm -r gfatools
 
-    pip3 install numpy==1.21
-    pip3 install pysam cigar
 
     # R --slave -e 'install.packages(c("XML", "dplyr", "stringr", "tidyr", "readr", "vcfR", "optparse"), repos="https://cloud.r-project.org/")'
 
@@ -79,7 +89,7 @@ From: ubuntu:22.04
     rm -rf ~/miniconda
 
 
-    apt-get remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget
+    apt-get remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget rustc
     apt-get autoremove --assume-yes
     apt-get clean --assume-yes
 
