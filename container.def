@@ -10,7 +10,7 @@ From: ubuntu:22.04
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get update
-    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget rustc cargo pypy3 pypy3-dev python3-dev
+    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget rustc cargo pypy3 pypy3-dev
 
     apt-get -y install \
     libssl-dev \
