@@ -18,9 +18,7 @@ From: ubuntu:22.04
     libcurl4-openssl-dev \
     curl libgomp1
 
-    pypy3 -m pip install numpy==1.21
-    pypy3 -m pip install pysam cigar
-    pip3 install numpy==1.21
+    pypy3 -m pip install cigar
 
     git clone https://github.com/cgroza/panmethyl
     cd panmethyl/tagtobed
