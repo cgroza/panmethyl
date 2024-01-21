@@ -1,5 +1,3 @@
-#![feature(split_array)]
-
 extern crate bam;
 use getopts::Options;
 use std::io::Write;
