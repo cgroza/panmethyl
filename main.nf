@@ -1,5 +1,7 @@
 process index_graph
 {
+  publishDir "${params.out}/index/", mode: 'copy'
+
   input:
   path(graph_path)
 
@@ -17,6 +19,9 @@ process align_graph {
   cpus 40
   memory '180G'
   time '12h'
+
+  publishDir "${params.out}/gafs/", mode: 'copy'
+
   input:
   tuple val(sample_name), path(bam_path), path(graph_path)
 
@@ -33,6 +38,8 @@ process align_graph {
 process bamtags_to_methylation {
   cpus 2
   time '6h'
+
+  publishDir "${params.out}/methylation/", mode: 'copy'
 
   input:
   tuple val(sample_name), path(bam_path), path(gaf_path),
