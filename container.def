@@ -13,8 +13,9 @@ From: ubuntu:22.04
     wget https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
     tar -xjf pypy3.10-v7.3.15-linux64.tar.bz2
     rm pypy3.10-v7.3.15-linux64.tar.bz2
-    pypy3.10-v7.3.15-linux64/bin/pypy3 -m ensurepip
-    pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install cigar
+    mv pypy3.10-v7.3.15-linux64 /opt/pypy3
+    /opt/pypy3/bin/pypy3 -m ensurepip
+    /opt/pypy3/bin/pypy3 -m pip install cigar
 
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
@@ -103,4 +104,4 @@ From: ubuntu:22.04
     export LC_ALL=C
     export LANG=C
     export PYTHONIOENCODING=utf8
-    export PATH=/opt/RepeatMasker:/opt/RepeatMasker/util:/opt/RepeatModeler:/opt/RepeatModeler/util:/opt/coseg:/opt/ucsc_tools:/opt:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    export PATH=/opt/pypy3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
