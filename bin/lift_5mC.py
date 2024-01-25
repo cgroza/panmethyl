@@ -57,7 +57,7 @@ for line in pb_aln:
         continue
 
     # base:score pairs
-    bmods = list(fields[19].split(','))
+    bmods = list(fields[-1].split(','))
 
     qlen = int(fields[1])
     qstart = int(fields[2])
