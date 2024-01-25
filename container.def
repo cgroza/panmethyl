@@ -16,6 +16,7 @@ From: ubuntu:22.04
     wget https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
     tar -xjf pypy3.10-v7.3.15-linux64.tar.bz2
     rm pypy3.10-v7.3.15-linux64.tar.bz2
+    pypy3.10-v7.3.15-linux64/bin/pypy3 -m ensurepip
     pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install cigar
 
 
