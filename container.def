@@ -6,11 +6,16 @@ From: ubuntu:22.04
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
         echo $TZ > /etc/timezone
 
+    wget https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
+    tar -xjf pypy3.10-v7.3.15-linux64.tar.bz2
+    rm pypy3.10-v7.3.15-linux64.tar.bz2
+    ~/pypy3.10-v7.3.15-linux64/bin/pypy3 -m pip install cigar
+
     apt-get -y update
     apt-get install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get update
-    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget rustc cargo pypy3 pypy3-dev
+    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf wget rustc cargo
 
     apt-get -y install \
     libssl-dev \
@@ -18,7 +23,6 @@ From: ubuntu:22.04
     libcurl4-openssl-dev \
     curl libgomp1
 
-    pypy3 -m pip install cigar
 
     git clone https://github.com/cgroza/panmethyl
     cd panmethyl/tagtobed
