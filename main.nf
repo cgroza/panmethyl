@@ -1,3 +1,7 @@
+params.out = "out"
+params.bams = "bams.csv"
+params.graph = "graph.gfa"
+
 process index_graph
 {
   publishDir "${params.out}/index/", mode: 'copy'
@@ -38,6 +42,7 @@ process align_graph {
 process bamtags_to_methylation {
   cpus 2
   time '6h'
+  memory '20G'
 
   publishDir "${params.out}/methylation/", mode: 'copy'
 
@@ -47,6 +52,7 @@ process bamtags_to_methylation {
 
   output:
   path("${sample_name}.graphMethylation")
+  path("${sample_name}.graph5mC")
 
   script:
   """
@@ -55,7 +61,7 @@ process bamtags_to_methylation {
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
-    lift_5mC.py ${node_sizes} ${sample_name}.pickle
+    lift_5mC.py ${node_sizes} ${sample_name}.graph5mC
   nodes_methylation.py ${nodes_list} ${sample_name}.pickle | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
   """
 }
