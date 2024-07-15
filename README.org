@@ -36,5 +36,5 @@ methylation level, encoded on a scale from 0 to 255 (as in the ML tag).
 2. Convert BAM file to FASTQ (~samtools~).
 3. Annotate reads in FASTQ with methylation information from the BAM (~tagtobed~).
 4. Map the FASTQ to the pangenome with ~minigraph~.
-5. Lift the methylation annotation from the reads to the graph (~bin/lift_5mC.py~)>
+5. Lift the methylation annotation from the reads to the graph (~bin/lift_5mC.py~).
 6. Count the average methylation level of CpGs (~bin/nodes_methylation.py~).
