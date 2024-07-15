@@ -1,3 +1,31 @@
 * Panmethyl
 
 Panmethyl maps methylation data from long-reads to pangenomes.
+
+** Inputs
+It takes the following inputs:
+
++ ~--out~ - directory in which panmethyl will write the output files.
++ ~--bams~ - CSV file listing the BAM files to be mapped to the pangenome.
+The format of this CSV file is:
+
+#+begin_src shell
+  sample,path
+  name1,path/to/bam1
+  name2,path/to/bam2
+#+end_src
+
+ These BAM files must be annotated with the appropriate methylation information.
+ For example, the location of modified bases must be encoded in the ~MM~ tag
+ and the likelihoods of methylation must be encoded in the ~ML~ tags.
+
++ ~--graph~ - Pangenome in rGFA format. Currently, only graphs created with
+  ~minigraph~ are supported, but can be extended to all graphs by
+  replacing minigraph with other graph aligners.
+
+** Outputs
+
+Panmethyl outputs a ~.graphMethylaion~ plain text file for each entry in
+~--bams~. This file is a CSV file listing the graph node, the position of the
+modified base, its strand, the coverage on the modified base, and the average
+methylation level, encoded on a scale from 0 to 255 (as in the ML tag).
