@@ -1,0 +1,3 @@
+* Panmethyl
+
+Panmethyl maps methylation data from long-reads to pangenomes.
