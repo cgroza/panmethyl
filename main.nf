@@ -66,7 +66,7 @@ process bamtags_to_methylation {
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
     lift_5mC.py ${node_sizes} ${sample_name}.graph5mC
-  nodes_methylation.py ${nodes_list} ${sample_name}.pickle | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
+  nodes_methylation.py ${nodes_list} ${sample_name}.graph5mC | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
   """
 }
 
