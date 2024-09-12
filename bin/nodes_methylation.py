@@ -2,6 +2,7 @@
 
 import pickle
 import sys
+import gzip
 
 nodes_list_path = sys.argv[1]
 pickle_mc_in = sys.argv[2]
