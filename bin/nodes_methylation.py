@@ -1,3 +1,5 @@
+#!/usr/bin/env pypy3
+
 import pickle
 import sys
 
