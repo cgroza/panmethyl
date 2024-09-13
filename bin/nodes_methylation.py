@@ -18,7 +18,6 @@ for line in cpgs_index:
     if not node in cpgs:
       cpgs[node] = dict()
 
-
     if not pos in cpgs[node]:
         if strand == "+":
             cpgs[node][pos] = 0

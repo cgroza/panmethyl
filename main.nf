@@ -14,13 +14,13 @@ process index_graph
   path(graph_path)
 
   output:
-  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("cpg_index.csv"), emit: graph_index
+  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("cpg_index.csv.gz"), emit: graph_index
 
   script:
   """
   awk '\$1 == "S" {print \$2, length(\$3)}' ${graph_path} > node_sizes.csv
   awk '{print \$1}' node_sizes.csv > nodes_list.csv
-  index_cpg.py ${graph_path} > cpg_index.csv
+  index_cpg.py ${graph_path} | gzip > cpg_index.csv.gz
   """
 }
 process align_graph {
