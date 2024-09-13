@@ -20,7 +20,7 @@ for s in gfa:
     cpg_i = seq.find("CG", 0)
     while cpg_i > -1:
         cpg_index[name].add(cpg_i)
-        cpg_index[name].add(cpg_i + 1)
+        cpg_index[name].add(-(cpg_i + 1))
         cpg_i = seq.find("CG", cpg_i + 2)
     i = i + 1
 
@@ -32,4 +32,7 @@ for s in gfa:
 
 for node in cpg_index:
     for pos in cpg_index[node]:
-        print(node, pos)
+        strand = "+"
+        if pos < 0:
+            strand = "-"
+        print(node, abs(pos), strand)
