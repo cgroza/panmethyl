@@ -84,7 +84,7 @@ From: ubuntu:22.04
 
     cd $HOME
 
-    wget -O /usr/local/bin/vg https://github.com/vgteam/vg/releases/download/v1.45.0/vg
+    wget -O /usr/local/bin/vg https://github.com/vgteam/vg/releases/download/v1.64.1/vg
     chmod +x /usr/local/bin/vg
 
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
