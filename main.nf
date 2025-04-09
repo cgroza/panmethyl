@@ -6,7 +6,7 @@ params.tag = "C+m."
 process index_graph
 {
   cpus 1
-  meory "20G"
+  memory "20G"
   time '3h'
 
   publishDir "${params.out}/index/", mode: 'copy'
