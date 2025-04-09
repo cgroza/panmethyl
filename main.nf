@@ -1,6 +1,7 @@
 params.out = "out"
 params.bams = "bams.csv"
 params.graph = "graph.gfa"
+params.tag = "C+m."
 
 process index_graph
 {
@@ -61,7 +62,7 @@ process bamtags_to_methylation {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -b ${bam_path} | pigz > ${sample_name}.5mC.gz
+  tagtobed -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.5mC.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
