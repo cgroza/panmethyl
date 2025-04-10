@@ -73,7 +73,7 @@ fn main() {
                         let mod_start = mm_pieces.iter().position(|&b| b.contains(&base_mod)).expect(format!("Could not find tag {}", base_mod).as_str());
                         // how many other modifications did we skip to find mod_start
                         let prev_mods = mm_pieces.iter().take(mod_start).filter(|s| !re.is_match(s)).collect::<Vec<&&str>>().len();
-                        println!("{}", prev_mods);
+
                         // take position until we meet the beginning of the next base modification
                         let mm_indices : Vec<usize> = mm_pieces.iter().skip(mod_start + 1).take_while(|s| re.is_match(s)).map(|i| { i.parse::<usize>().unwrap() }).collect();
 
