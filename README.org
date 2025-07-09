@@ -4,7 +4,7 @@ Panmethyl is a nextflow pipeline maps methylation data from long-reads to pangen
 
 ** Apptainer image
 #+begin_src shell
-apptainer pull --arch amd64 panmethyl.sif library://cgroza/cgroza/collection-panmethyl:latest
+apptainer pull --arch amd64 panmethyl.sif library://cgroza/collection/panmethyl:latest
 #+end_src
 
 ** Inputs

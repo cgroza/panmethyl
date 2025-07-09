@@ -6,23 +6,23 @@ From: ubuntu:22.04
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
         echo $TZ > /etc/timezone
 
-    apt-get -y update
+    apt-get -qq -y update
 
-    apt-get install --assume-yes wget bzip2
+    apt-get -qq install --assume-yes wget bzip2
 
-    wget https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
+    wget -q https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
     tar -xjf pypy3.10-v7.3.15-linux64.tar.bz2
     rm pypy3.10-v7.3.15-linux64.tar.bz2
     mv pypy3.10-v7.3.15-linux64 /opt/pypy3
     /opt/pypy3/bin/pypy3 -m ensurepip
     /opt/pypy3/bin/pypy3 -m pip install cigar
 
-    apt-get install --assume-yes software-properties-common
+    apt-get -qq install --assume-yes software-properties-common
     add-apt-repository universe
-    apt-get update
-    apt-get install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf rustc cargo
+    apt-get -qq update
+    apt-get -qq install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf rustc cargo
 
-    apt-get -y install \
+    apt-get -qq -y install \
     libssl-dev \
     libxml2-dev \
     libcurl4-openssl-dev \
@@ -84,10 +84,10 @@ From: ubuntu:22.04
 
     cd $HOME
 
-    wget -O /usr/local/bin/vg https://github.com/vgteam/vg/releases/download/v1.64.1/vg
+    wget -q -O /usr/local/bin/vg https://github.com/vgteam/vg/releases/download/v1.66.0/vg
     chmod +x /usr/local/bin/vg
 
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+    wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
     bash ~/miniconda.sh -b -p $HOME/miniconda
     rm -f ~/miniconda.sh
     ${HOME}/miniconda/bin/conda install -y -c bioconda graphaligner
@@ -95,9 +95,9 @@ From: ubuntu:22.04
     rm -rf ~/miniconda
 
 
-    apt-get remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget rustc cargo
-    apt-get autoremove --assume-yes
-    apt-get clean --assume-yes
+    apt-get -qq remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget rustc cargo
+    apt-get -qq autoremove --assume-yes
+    apt-get -qq clean --assume-yes
 
 
 %environment
