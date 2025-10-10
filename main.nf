@@ -2,6 +2,7 @@ params.out = "out"
 params.bams = "bams.csv"
 params.graph = "graph.gfa"
 params.tag = "C+m."
+params.aligner = "GraphAligner"
 
 process index_graph
 {
@@ -24,7 +25,28 @@ process index_graph
   index_cpg.py ${graph_path} | gzip > cpg_index.csv.gz
   """
 }
-process align_graph {
+process align_graphaligner {
+  cpus 40
+  memory '180G'
+  time '12h'
+
+  publishDir "${params.out}/gafs/", mode: 'copy'
+
+  input:
+  tuple val(sample_name), path(bam_path), path(graph_path)
+
+  output:
+  tuple val(sample_name), path("${sample_name}.gaf.gz"), emit: gafs
+
+  script:
+  """
+  samtools fasta --threads 40 ${bam_path} | pigz  > ${sample_name}.fa.gz
+  GraphAligner -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
+  pigz ${sample_name}.gaf
+  """
+
+}
+process align_minigraph {
   cpus 40
   memory '180G'
   time '12h'
@@ -78,6 +100,11 @@ workflow {
   }.set{bams_ch}
 
   index_graph(graph_ch)
-  align_graph(bams_ch.combine(graph_ch))
+  if(params.aligner == "minigraph") {
+    align_minigraph(bams_ch.combine(graph_ch))
+  }
+  else if(params.aligner == "GraphAligner") {
+    align_graphaligner(bams_ch.combine(graph_ch))
+  }
   bamtags_to_methylation(bams_ch.combine(align_graph.out.gafs, by : 0).combine(index_graph.out.graph_index))
 }
