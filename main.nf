@@ -4,6 +4,10 @@ params.graph = "graph.gfa"
 params.tag = "C+m."
 params.aligner = "GraphAligner"
 
+params.cpus = 40
+params.memory =  '180G'
+params.time = '24h'
+
 process index_graph
 {
   cpus 1
@@ -26,9 +30,9 @@ process index_graph
   """
 }
 process align_graphaligner {
-  cpus 40
-  memory '180G'
-  time '12h'
+  cpus params.cpus
+  memory params.memory
+  time params.time
 
   publishDir "${params.out}/gafs/", mode: 'copy'
 
@@ -47,9 +51,9 @@ process align_graphaligner {
 
 }
 process align_minigraph {
-  cpus 40
-  memory '180G'
-  time '12h'
+  cpus params.cpus
+  memory params.memory
+  time params.time
 
   publishDir "${params.out}/gafs/", mode: 'copy'
 
