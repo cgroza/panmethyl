@@ -90,6 +90,9 @@ From: ubuntu:22.04
     wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
     bash ~/miniconda.sh -b -p $HOME/miniconda
     rm -f ~/miniconda.sh
+    ${HOME}/miniconda/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+
+    ${HOME}/miniconda/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
     ${HOME}/miniconda/bin/conda install -y -c bioconda graphaligner
     cp ${HOME}/miniconda/bin/GraphAligner /usr/local/bin/
     rm -rf ~/miniconda
