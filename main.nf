@@ -101,10 +101,10 @@ workflow {
 
   index_graph(graph_ch)
   if(params.aligner == "minigraph") {
-    align_minigraph(bams_ch.combine(graph_ch))
+    align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
   }
   else if(params.aligner == "GraphAligner") {
-    align_graphaligner(bams_ch.combine(graph_ch))
+    align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
   }
-  bamtags_to_methylation(bams_ch.combine(align_graph.out.gafs, by : 0).combine(index_graph.out.graph_index))
+  bamtags_to_methylation(bams_ch.combine(gafs_ch, by : 0).combine(index_graph.out.graph_index))
 }
