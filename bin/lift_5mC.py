@@ -3,6 +3,7 @@
 import cigar
 import sys
 import pickle
+import re
 
 node_sizes_path = sys.argv[1]
 pickle_out = sys.argv[2]
@@ -20,6 +21,14 @@ def parse_path(s):
         nodes.append((s[node_pos - 1], node_name))
         node_pos = next_node_pos
     return(nodes)
+
+def parse_path_re(s):
+    nodes = []
+    matches = re.finditer(r"([<>])([a-zA-Z]*[0-9]+)", s)
+    for m in matches:
+        nodes.append((m.group(1), m.group(2)))
+    return nodes
+
 
 def increment_count(d, node, pos, score):
     if pos in d[node]:
@@ -72,7 +81,7 @@ for line in pb_aln:
     assert fields[16].startswith("cg:Z:")
     cg = cigar.Cigar(fields[16][5:])
 
-    parsed_path = parse_path(path)
+    parsed_path = parse_path_re(path)
 
     # list of intervals describing matches on path, left closed, right closed intervals
     pmatches = []
