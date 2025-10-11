@@ -70,7 +70,11 @@ fn main() {
                         let mm_pieces : Vec<&str> = mm_tag.split(|c: char| c == ',' || c == ';').collect();
 
                         // find the beginning of the desired base modification
-                        let mod_start = mm_pieces.iter().position(|&b| b.contains(&base_mod)).expect(format!("Could not find tag {}", base_mod).as_str());
+                        let mod_start = match mm_pieces.iter().position(|&b| b.contains(&base_mod)) {
+                            Some(m) => { m },
+                            None => { eprintln!("Could not find tag {}", base_mod); process::exit(1) }
+                        };
+
                         // how many other modifications did we skip to find mod_start
                         let prev_mods = mm_pieces.iter().take(mod_start).filter(|s| !re.is_match(s)).collect::<Vec<&&str>>().len();
 
