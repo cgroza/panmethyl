@@ -8,19 +8,6 @@ import re
 node_sizes_path = sys.argv[1]
 pickle_out = sys.argv[2]
 
-def parse_path(s):
-    node_pos = 1
-    nodes = []
-    while node_pos > -1:
-        next_node_pos = s.find("s", node_pos + 1)
-        node_name = None
-        if next_node_pos == -1:
-            node_name = s[node_pos:]
-        else:
-            node_name = s[node_pos:next_node_pos - 1]
-        nodes.append((s[node_pos - 1], node_name))
-        node_pos = next_node_pos
-    return(nodes)
 
 def parse_path_re(s):
     nodes = []
