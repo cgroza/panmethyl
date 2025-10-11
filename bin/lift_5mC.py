@@ -53,7 +53,7 @@ for line in pb_aln:
     assert fields[4] == "+"
 
     # this read has no modified bases
-    if len(fields) < 20:
+    if len(fields) < 18:
         continue
 
     # base:score pairs
@@ -70,7 +70,7 @@ for line in pb_aln:
 
     # cigar string
     assert fields[18].startswith("cg:Z:")
-    cg = cigar.Cigar(fields[18][5:])
+    cg = cigar.Cigar(fields[16][5:])
 
     parsed_path = parse_path(path)
 
