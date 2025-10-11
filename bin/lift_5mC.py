@@ -69,7 +69,7 @@ for line in pb_aln:
     pend = int(fields[8])
 
     # cigar string
-    assert fields[18].startswith("cg:Z:")
+    assert fields[16].startswith("cg:Z:")
     cg = cigar.Cigar(fields[16][5:])
 
     parsed_path = parse_path(path)
