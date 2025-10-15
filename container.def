@@ -20,7 +20,7 @@ From: ubuntu:22.04
     apt-get -qq install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get -qq update
-    apt-get -qq install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf rustc cargo
+    apt-get -qq install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf rustc cargo polars
 
     apt-get -qq -y install \
     libssl-dev \
