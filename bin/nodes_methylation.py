@@ -8,12 +8,11 @@ nodes_list_path = sys.argv[1]
 pickle_mc_in = sys.argv[2]
 mc = pickle.load(open(pickle_mc_in, "rb"))
 cpgs_index = gzip.open(sys.argv[3], "r")
-cpgs_index.readline()
 
 cpgs = dict()
 
 for line in cpgs_index:
-    node, pos, strand = line.decode().split()
+    node, pos, strand, pair = line.decode().split()
     pos = int(pos)
     if not node in cpgs:
       cpgs[node] = dict()
