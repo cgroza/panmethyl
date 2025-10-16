@@ -100,8 +100,6 @@ process methylation_to_csv {
   time '6h'
   memory '60G'
 
-  publishDir "${params.out}/methylation/", mode: 'copy'
-
   input:
   tuple val(sample_name), path(graph_methylation), path(node_sizes), path(nodes_list), path(cpg_index)
 
@@ -118,6 +116,8 @@ process merge_csv {
   cpus 1
   time '6h'
   memory '60G'
+
+  publishDir "${params.out}/methylation/", mode: 'copy'
 
   input:
   tuple val(sample_name), path("graphMethylation*.csv")
