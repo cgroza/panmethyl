@@ -40,7 +40,7 @@ process align_graphaligner {
   tuple val(sample_name), path(bam_path), path(graph_path)
 
   output:
-  tuple val(sample_name), path("${sample_name}.gaf.gz"), emit: gafs
+  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz"), emit: gafs
 
   script:
   """
@@ -61,7 +61,7 @@ process align_minigraph {
   tuple val(sample_name), path(bam_path), path(graph_path)
 
   output:
-  tuple val(sample_name), path("${sample_name}.gaf.gz"), emit: gafs
+  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz"), emit: gafs
 
   script:
   """
@@ -73,7 +73,7 @@ process align_minigraph {
 process bamtags_to_methylation {
   cpus 2
   time '6h'
-  memory '20G'
+  memory '60G'
 
   publishDir "${params.out}/methylation/", mode: 'copy'
 
@@ -82,8 +82,7 @@ process bamtags_to_methylation {
     path(node_sizes), path(nodes_list), path(cpg_index)
 
   output:
-  path("${sample_name}.graphMethylation")
-  path("${sample_name}.graph5mC")
+  tuple val(sample_name), path("${sample_name}.graph5mC")
 
   script:
   """
@@ -93,7 +92,42 @@ process bamtags_to_methylation {
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
     lift_5mC.py ${node_sizes} ${sample_name}.graph5mC
+  """
+}
+
+process methylation_to_csv {
+  cpus 1
+  time '6h'
+  memory '60G'
+
+  publishDir "${params.out}/methylation/", mode: 'copy'
+
+  input:
+  tuple val(sample_name), path(graph_methylation), path(node_sizes), path(nodes_list), path(cpg_index)
+
+  output:
+  tuple val(sample_name), path("${sample_name}.graphMethylation")
+
+  script:
+  """
   nodes_methylation.py ${nodes_list} ${sample_name}.graph5mC ${cpg_index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
+  """
+}
+
+process merge_csv {
+  cpus 1
+  time '6h'
+  memory '60G'
+
+  input:
+  tuple val(sample_name), path(csvs)
+
+  output:
+  path("${sample_name}.csv.gz")
+
+  script:
+  """
+  merge_csvs.py ${sample_name}.csv.gz ${csvs}
   """
 }
 
@@ -110,5 +144,7 @@ workflow {
   else if(params.aligner == "GraphAligner") {
     align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
   }
-  bamtags_to_methylation(bams_ch.combine(gafs_ch, by : 0).combine(index_graph.out.graph_index))
+  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{methylation_ch}
+  methylation_to_csv(methylation_ch.combine(index_graph.out.graph_index)).set(csv_ch)
+  merge_csv(csv_ch.groupTuple(by: 0))
 }
