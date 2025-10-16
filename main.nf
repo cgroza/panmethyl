@@ -120,14 +120,14 @@ process merge_csv {
   memory '60G'
 
   input:
-  tuple val(sample_name), path(csvs)
+  tuple val(sample_name), path("graphMethylation*.csv")
 
   output:
   path("${sample_name}.csv.gz")
 
   script:
   """
-  merge_csvs.py ${sample_name}.csv.gz ${csvs}
+  merge_csvs.py ${sample_name}.csv.gz graphMethylation*.csv
   """
 }
 
