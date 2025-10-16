@@ -110,7 +110,7 @@ process methylation_to_csv {
 
   script:
   """
-  nodes_methylation.py ${nodes_list} ${sample_name}.graph5mC ${cpg_index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
+  nodes_methylation.py ${nodes_list} ${graph_methylation} ${cpg_index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
   """
 }
 
