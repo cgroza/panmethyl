@@ -135,7 +135,7 @@ workflow {
   Channel.fromPath(params.graph).set{graph_ch}
   index_graph(graph_ch)
 
-  methylation_ch = channel.empty
+  methylation_ch = channel.empty()
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
