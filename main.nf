@@ -1,9 +1,9 @@
 params.out = "out"
-params.bams = "bams.csv"
+params.bams = false
+params.graph5mc = false
 params.graph = "graph.gfa"
 params.tag = "C+m."
 params.aligner = "GraphAligner"
-
 params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
@@ -133,18 +133,29 @@ process merge_csv {
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
-  Channel.fromPath(params.bams).splitCsv(header : true).map{
-    row -> [row.sample, file(row.path)]
-  }.set{bams_ch}
-
   index_graph(graph_ch)
-  if(params.aligner == "minigraph") {
-    align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
+
+  methylation_ch = channel.empty
+
+  if(params.bams) {
+    Channel.fromPath(params.bams).splitCsv(header : true).map{
+      row -> [row.sample, file(row.path)]
+    }.set{bams_ch}
+
+    if(params.aligner == "minigraph") {
+      align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
+    }
+    else if(params.aligner == "GraphAligner") {
+      align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
+    }
+    methylation_ch = bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index))
   }
-  else if(params.aligner == "GraphAligner") {
-    align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
+
+  if(params.graph5mc) {
+    methylation_ch = Channel.fromPath(params.graph5mc).splitCsv(header : true).map{
+      row -> [row.sample, file(row.path)]
+    }
   }
-  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{methylation_ch}
   methylation_to_csv(methylation_ch.combine(index_graph.out.graph_index)).set{csv_ch}
   merge_csv(csv_ch.groupTuple(by: 0))
 }
