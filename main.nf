@@ -145,6 +145,6 @@ workflow {
     align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
   }
   bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{methylation_ch}
-  methylation_to_csv(methylation_ch.combine(index_graph.out.graph_index)).set(csv_ch)
+  methylation_to_csv(methylation_ch.combine(index_graph.out.graph_index)).set{csv_ch}
   merge_csv(csv_ch.groupTuple(by: 0))
 }
