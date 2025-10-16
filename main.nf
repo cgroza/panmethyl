@@ -135,7 +135,8 @@ workflow {
   Channel.fromPath(params.graph).set{graph_ch}
   index_graph(graph_ch)
 
-  methylation_ch = channel.empty()
+  bam_methylation_ch = channel.empty()
+  graph_methylation_ch = channel.empty()
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
@@ -148,14 +149,14 @@ workflow {
     else if(params.aligner == "GraphAligner") {
       align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
     }
-    bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).into(methylation_ch)
+    bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
   }
 
   if(params.graph5mc) {
     Channel.fromPath(params.graph5mc).splitCsv(header : true).map{
       row -> [row.sample, file(row.path)]
-    }.into(methylation_ch)
+    }.set{graph_methylation_ch}
   }
-  methylation_to_csv(methylation_ch.combine(index_graph.out.graph_index)).set{csv_ch}
+  methylation_to_csv(bam_methylation_ch.concat(graph_methylation_ch).combine(index_graph.out.graph_index)).set{csv_ch}
   merge_csv(csv_ch.groupTuple(by: 0))
 }
