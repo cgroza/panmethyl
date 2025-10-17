@@ -75,7 +75,7 @@ process bamtags_to_methylation {
   time '6h'
   memory '60G'
 
-  publishDir "${params.out}/methylation/", mode: 'copy'
+  publishDir "${params.out}/lifted/", mode: 'copy'
 
   input:
   tuple val(sample_name), path(bam_path), path(gaf_path),
