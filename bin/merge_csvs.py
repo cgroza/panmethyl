@@ -4,7 +4,7 @@ import sys
 import gzip
 
 schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'gaf_depth':polars.Float32, 'gaf_score':polars.Float32}
-columns = ['node', 'pos', 'strand', 'gaf_depth', 'gaf_score']
+columns = ['node', 'pos', 'strand', 'depth', 'score']
 
 chunk = polars.read_csv(sys.argv[2], separator=' ', has_header=False,
                                new_columns=columns,
