@@ -17,8 +17,8 @@ if len(sys.argv) > 3:
                                                     schema=schema)],
                               how = 'vertical') \
                     .group_by('node', 'pos', 'strand') \
-                    .agg(score=polars.col("gaf_depth").dot("gaf_score")/polars.col("gaf_depth").sum(),
-                         depth=polars.col("gaf_depth").sum()) \
+                    .agg(score=polars.col("depth").dot("gaf_score")/polars.col("depth").sum(),
+                         depth=polars.col("depth").sum()) \
                     .fill_nan(0)
 
 with gzip.open(sys.argv[1], 'wb') as csv:
