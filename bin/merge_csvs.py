@@ -3,7 +3,7 @@ import polars
 import sys
 import gzip
 
-schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'gaf_depth':polars.Float32, 'gaf_score':polars.Float32}
+schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'depth':polars.Float32, 'score':polars.Float32}
 columns = ['node', 'pos', 'strand', 'depth', 'score']
 
 chunk = polars.read_csv(sys.argv[2], separator=' ', has_header=False,
