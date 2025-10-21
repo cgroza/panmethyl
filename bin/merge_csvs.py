@@ -19,7 +19,8 @@ if len(sys.argv) > 3:
                     .group_by('node', 'pos', 'strand') \
                     .agg(score=polars.col("depth").dot("score")/polars.col("depth").sum(),
                          depth=polars.col("depth").sum()) \
-                    .fill_nan(0)
+                    .fill_nan(0) \
+                    .select(columns)
 
 with gzip.open(sys.argv[1], 'wb') as csv:
     chunk.sort('node', 'pos', 'strand').write_csv(csv, separator=' ')
