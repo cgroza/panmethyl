@@ -17,7 +17,7 @@ if len(sys.argv) > 3:
                                                     schema=schema)],
                               how = 'vertical') \
                     .group_by('node', 'pos', 'strand') \
-                    .agg(score=polars.col("depth").dot("gaf_score")/polars.col("depth").sum(),
+                    .agg(score=polars.col("depth").dot("score")/polars.col("depth").sum(),
                          depth=polars.col("depth").sum()) \
                     .fill_nan(0)
 
