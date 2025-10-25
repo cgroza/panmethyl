@@ -3,6 +3,7 @@ params.bams = false
 params.graph5mc = false
 params.graph = "graph.gfa"
 params.tag = "C+m."
+params.motif = "CG"
 params.aligner = "GraphAligner"
 params.cpus = 40
 params.memory =  '180G'
@@ -20,13 +21,13 @@ process index_graph
   path(graph_path)
 
   output:
-  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("cpg_index.csv.gz"), emit: graph_index
+  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("index.csv.gz"), emit: graph_index
 
   script:
   """
   awk '\$1 == "S" {print \$2, length(\$3)}' ${graph_path} > node_sizes.csv
   awk '{print \$1}' node_sizes.csv > nodes_list.csv
-  index_cpg.py ${graph_path} | gzip > cpg_index.csv.gz
+  index_nucleotide.py ${graph_path} ${params.motif} | gzip > index.csv.gz
   """
 }
 process align_graphaligner {
@@ -79,7 +80,7 @@ process bamtags_to_methylation {
 
   input:
   tuple val(sample_name), path(bam_path), path(gaf_path),
-    path(node_sizes), path(nodes_list), path(cpg_index)
+    path(node_sizes), path(nodes_list), path(index)
 
   output:
   tuple val(sample_name), path("${sample_name}.graph5mC")
@@ -91,7 +92,7 @@ process bamtags_to_methylation {
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
-    lift_5mC.py ${node_sizes} ${sample_name}.graph5mC
+    lift.py ${node_sizes} ${sample_name}.graph5mC
   """
 }
 
@@ -101,14 +102,14 @@ process methylation_to_csv {
   memory '60G'
 
   input:
-  tuple val(sample_name), path(graph_methylation), path(node_sizes), path(nodes_list), path(cpg_index)
+  tuple val(sample_name), path(graph_methylation), path(node_sizes), path(nodes_list), path(index)
 
   output:
   tuple val(sample_name), path("${sample_name}.graphMethylation")
 
   script:
   """
-  nodes_methylation.py ${nodes_list} ${graph_methylation} ${cpg_index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
+  nodes_methylation.py ${nodes_list} ${graph_methylation} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
   """
 }
 
