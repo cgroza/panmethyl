@@ -12,6 +12,7 @@ fn main() {
     opts.optopt("o", "", "set output file name", "NAME");
     opts.optopt("b", "", "set input bam", "NAME");
     opts.optopt("B", "", "name of base modification", "NAME");
+    opts.optopt("T", "", "modified nucleotide", "ACTG");
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
@@ -26,6 +27,7 @@ fn main() {
     };
 
     let base_mod = matches.opt_str("B").unwrap_or("C+m.".to_string());
+    let nuc_mod  = matches.opt_str("T").unwrap_or("C".to_string());
 
     if !matches.opt_present("b") {
         eprintln!("No input provided.");
@@ -64,7 +66,7 @@ fn main() {
 
                         // parse mm tag and Cs in sequence
                         // assumes only one type of modification
-                        let c_vec : Vec<usize> = seq.match_indices("C").map(|c| c.0).collect();
+                        let c_vec : Vec<usize> = seq.match_indices(&nuc_mod).map(|c| c.0).collect();
 
                         let re = Regex::new(r"^[0-9]+$").unwrap();
                         let mm_pieces : Vec<&str> = mm_tag.split(|c: char| c == ',' || c == ';').collect();
