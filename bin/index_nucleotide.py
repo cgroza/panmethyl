@@ -6,7 +6,7 @@ nuc = sys.argv[2]
 
 i = 0
 
-if nuc != 'CG':
+if len(nuc) == 1:
     for s in gfa:
         fields = s.split()
         # not a segment
@@ -66,5 +66,6 @@ elif nuc == 'CG':
                     print(right, node_ends[right] - 1, "-", "E" + str(i))
 
         i = i + 1
-
-gfa.close()
+else:
+    sys.stderr.write("Unsupported motif\n")
+    sys.exit(1)
