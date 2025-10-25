@@ -40,7 +40,7 @@ process align_graphaligner {
   tuple val(sample_name), path(bam_path), path(graph_path)
 
   output:
-  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz"), emit: gafs
+  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz")
 
   script:
   """
@@ -61,7 +61,7 @@ process align_minigraph {
   tuple val(sample_name), path(bam_path), path(graph_path)
 
   output:
-  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz"), emit: gafs
+  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz")
 
   script:
   """
@@ -143,7 +143,11 @@ workflow {
       row -> [row.sample, file(row.path)]
     }.set{bams_ch}
 
-    if(params.aligner == "minigraph") {
+    if (params.gafs) {
+      Channel.fromPath(params.bams).splitCsv(header : true).map{
+        row -> [row.sample, file(row.bam) file(row.gaf)]}.set{gafs_ch}
+    }
+    else if(params.aligner == "minigraph") {
       align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
     }
     else if(params.aligner == "GraphAligner") {
