@@ -47,7 +47,8 @@ process align_graphaligner {
   """
   samtools fasta --threads ${params.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
   GraphAligner -t ${params.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
-  pigz ${sample_name}.gaf
+  cut -f1-12,17 ${sample_name}.gaf | pigz > ${sample_name}.gaf.gz
+  rm ${sample_name}.gaf
   """
 }
 
@@ -67,7 +68,7 @@ process align_minigraph {
   script:
   """
   samtools fasta --threads ${params.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  minigraph --vc -c -N 1 -t ${params.cpus} ${graph_path} ${sample_name}.fa.gz | pigz > ${sample_name}.gaf.gz
+  minigraph --vc -c -N 1 -t ${params.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | pigz > ${sample_name}.gaf.gz
   """
 }
 
