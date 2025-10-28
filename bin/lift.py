@@ -49,7 +49,7 @@ for line in pb_aln:
     assert fields[4] == "+"
 
     # this read has no modified bases
-    if len(fields) < 18:
+    if len(fields) < 14:
         continue
 
     # base:score pairs
