@@ -154,7 +154,7 @@ workflow {
   }
 
   if (params.gafs) {
-    Channel.fromPath(params.bams).splitCsv(header : true).map{
+    Channel.fromPath(params.gafs).splitCsv(header : true).map{
       row -> [row.sample, file(row.bam), file(row.gaf)]}.set{gafs_ch}
   }
 
