@@ -1,6 +1,6 @@
 params.out = "out"
 params.bams = false
-params.graph5mc = false
+params.graph_mods = false
 params.graph = "graph.gfa"
 params.tag = "C+m."
 params.motif = "CG"
@@ -83,16 +83,16 @@ process bamtags_to_methylation {
     path(node_sizes), path(nodes_list), path(index)
 
   output:
-  tuple val(sample_name), path("${sample_name}.graph5mC")
+  tuple val(sample_name), path("${sample_name}.graph_mods")
 
   script:
   """
   samtools index ${bam_path}
-  tagtobed -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.5mC.gz
+  tagtobed -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
-    <(gunzip -c ${sample_name}.5mC.gz | sort ) | \
-    lift.py ${node_sizes} ${sample_name}.graph5mC
+    <(gunzip -c ${sample_name}.mods.gz | sort ) | \
+    lift.py ${node_sizes} ${sample_name}.graph_mods
   """
 }
 
@@ -102,14 +102,14 @@ process methylation_to_csv {
   memory '60G'
 
   input:
-  tuple val(sample_name), path(graph_methylation), path(node_sizes), path(nodes_list), path(index)
+  tuple val(sample_name), path(graph_mods), path(node_sizes), path(nodes_list), path(index)
 
   output:
-  tuple val(sample_name), path("${sample_name}.graphMethylation")
+  tuple val(sample_name), path("${sample_name}.csv")
 
   script:
   """
-  nodes_methylation.py ${nodes_list} ${graph_methylation} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.graphMethylation
+  nodes_levels.py ${nodes_list} ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv
   """
 }
 
@@ -118,17 +118,17 @@ process merge_csv {
   time '6h'
   memory '60G'
 
-  publishDir "${params.out}/methylation/", mode: 'copy'
+  publishDir "${params.out}/levels/", mode: 'copy'
 
   input:
-  tuple val(sample_name), path("graphMethylation*.csv")
+  tuple val(sample_name), path("graph_levels*.csv")
 
   output:
   path("${sample_name}.csv.gz")
 
   script:
   """
-  merge_csvs.py ${sample_name}.csv.gz graphMethylation*.csv
+  merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv
   """
 }
 
@@ -160,8 +160,8 @@ workflow {
 
   bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
 
-  if(params.graph5mc) {
-    Channel.fromPath(params.graph5mc).splitCsv(header : true).map{
+  if(params.graph_mods) {
+    Channel.fromPath(params.graph_mods).splitCsv(header : true).map{
       row -> [row.sample, file(row.path)]
     }.set{graph_methylation_ch}
   }
