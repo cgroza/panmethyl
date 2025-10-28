@@ -143,18 +143,19 @@ workflow {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
       row -> [row.sample, file(row.path)]
     }.set{bams_ch}
+  }
 
-    if (params.gafs) {
-      Channel.fromPath(params.bams).splitCsv(header : true).map{
-        row -> [row.sample, file(row.bam) file(row.gaf)]}.set{gafs_ch}
-    }
-    else if(params.aligner == "minigraph") {
-      align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
-    }
-    else if(params.aligner == "GraphAligner") {
-      align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
-    }
-    bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
+  if (params.gafs) {
+    Channel.fromPath(params.bams).splitCsv(header : true).map{
+      row -> [row.sample, file(row.bam) file(row.gaf)]}.set{gafs_ch}
+  }
+  else if(params.aligner == "minigraph") {
+    align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
+  }
+  else if(params.aligner == "GraphAligner") {
+    align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
+  }
+  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch
   }
 
   if(params.graph5mc) {
