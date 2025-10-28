@@ -9,8 +9,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-process index_graph
-{
+process index_graph {
   cpus 1
   memory "20G"
   time '3h'
@@ -30,6 +29,7 @@ process index_graph
   index_nucleotide.py ${graph_path} ${params.motif} | gzip > index.csv.gz
   """
 }
+
 process align_graphaligner {
   cpus params.cpus
   memory params.memory
@@ -49,8 +49,8 @@ process align_graphaligner {
   GraphAligner -t ${params.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
   pigz ${sample_name}.gaf
   """
-
 }
+
 process align_minigraph {
   cpus params.cpus
   memory params.memory
@@ -143,26 +143,28 @@ workflow {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
       row -> [row.sample, file(row.path)]
     }.set{bams_ch}
+
+    if(params.aligner == "minigraph") {
+      align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
+    }
+    else if(params.aligner == "GraphAligner") {
+      align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
+    }
   }
 
   if (params.gafs) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
       row -> [row.sample, file(row.bam) file(row.gaf)]}.set{gafs_ch}
   }
-  else if(params.aligner == "minigraph") {
-    align_minigraph(bams_ch.combine(graph_ch)).set{gafs_ch}
-  }
-  else if(params.aligner == "GraphAligner") {
-    align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
-  }
-  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch
-  }
+
+  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
 
   if(params.graph5mc) {
     Channel.fromPath(params.graph5mc).splitCsv(header : true).map{
       row -> [row.sample, file(row.path)]
     }.set{graph_methylation_ch}
   }
+
   methylation_to_csv(bam_methylation_ch.concat(graph_methylation_ch).combine(index_graph.out.graph_index)).set{csv_ch}
   merge_csv(csv_ch.groupTuple(by: 0))
 }
