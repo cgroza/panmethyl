@@ -64,9 +64,10 @@ fn main() {
                             String::from_utf8(record.sequence().to_vec()).unwrap()
                         };
 
-                        // parse mm tag and Cs in sequence
-                        // assumes only one type of modification
-                        let c_vec : Vec<usize> = seq.match_indices(&nuc_mod).map(|c| c.0).collect();
+                        // parse mm tag and modified nucleotide in sequence
+
+                        // retrieve the positions of specified nucleotides in read
+                        let nuc_pos_vec : Vec<usize> = seq.match_indices(&nuc_mod).map(|c| c.0).collect();
 
                         let re = Regex::new(r"^[0-9]+$").unwrap();
                         let mm_pieces : Vec<&str> = mm_tag.split(|c: char| c == ',' || c == ';').collect();
@@ -89,11 +90,11 @@ fn main() {
                         for mc in &mm_indices {
                             // the current base is modified
                             if *mc == 0 {
-                                mod_bases.push(c_vec[i]);
+                                mod_bases.push(nuc_pos_vec[i]);
                             // skip mc bases, then take the modified base
                             } else {
                                 i = i + mc;
-                                mod_bases.push(c_vec[i]);
+                                mod_bases.push(nuc_pos_vec[i]);
                             }
                             // we consumed the modified base
                             i = i + 1;
