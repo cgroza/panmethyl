@@ -19,6 +19,7 @@ if len(nuc) == 1:
         nuc_i = seq.find(nuc, 0)
         while nuc_i > -1:
             print(name, nuc_i, "+", "N" + str(i))
+            nuc_i = seq.find(nuc, nuc_i + 1)
         i = i + 1
 
 elif nuc == 'CG':
