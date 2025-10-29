@@ -89,7 +89,7 @@ process bamtags_to_methylation {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.mods.gz
+  tagtobed -T ${params.tag[0]} -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.mods.gz | sort ) | \
