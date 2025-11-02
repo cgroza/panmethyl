@@ -1,5 +1,7 @@
 params.out = "out"
 params.bams = false
+params.gafs = false
+params.vcfs = false
 params.graph_mods = false
 params.graph = "graph.gfa"
 params.tag = "C+m."
@@ -8,6 +10,25 @@ params.aligner = "GraphAligner"
 params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
+
+
+process annotate_vcf {
+  cpus params.cpus
+  memory params.memory
+  time '12h'
+
+  input:
+  tuple val(sample), path(vcf), path(mods)
+
+  output:
+  tuple val(sample), path("${sample}.mods.vcf.gz")
+
+  script:
+  """
+  annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf.gz
+  """
+
+}
 
 process index_graph {
   cpus 1
@@ -125,7 +146,7 @@ process merge_csv {
   tuple val(sample_name), path("graph_levels*.csv")
 
   output:
-  path("${sample_name}.csv.gz")
+  tuple val(sample_name), path("${sample_name}.csv.gz")
 
   script:
   """
@@ -168,5 +189,11 @@ workflow {
   }
 
   methylation_to_csv(bam_methylation_ch.concat(graph_methylation_ch).combine(index_graph.out.graph_index)).set{csv_ch}
-  merge_csv(csv_ch.groupTuple(by: 0))
+  merge_csv(csv_ch.groupTuple(by: 0)).set{merged_ch}
+
+  if (params.vcfs) {
+    Channel.fromPath(params.vcfs).splitCsv(header : true).map{
+      row -> [row.sample, file(row.path)]}.set(vcf_ch)
+    annotate_vcf(vcf_ch.combine(merged_ch, by: 0))
+  }
 }
