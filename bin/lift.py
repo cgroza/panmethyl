@@ -1,4 +1,4 @@
-#!/usr/bin/env pypy3
+#!/opt/pypy3/bin/pypy3
 
 import cigar
 import sys

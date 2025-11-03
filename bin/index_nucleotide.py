@@ -1,4 +1,4 @@
-#!/usr/bin/env pypy3
+#!/opt/pypy3/bin/pypy3
 import sys
 
 gfa = open(sys.argv[1])
