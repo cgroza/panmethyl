@@ -11,7 +11,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-include { * } from './module'
+include { annotate_vcf; index_graph; align_graphaligner; align_minigraph; bamtags_to_methylation; methylation_to_csv; merge_csv } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
@@ -19,6 +19,9 @@ workflow {
 
   bam_methylation_ch = channel.empty()
   graph_methylation_ch = channel.empty()
+
+  gafs_ch = channel.empty()
+  bams_ch = channel.empty()
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
