@@ -11,7 +11,8 @@ process annotate_vcf {
 
   script:
   """
-  annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf.gz
+  annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf
+  bgzip ${sample}.mods.vcf
   """
 
 }
