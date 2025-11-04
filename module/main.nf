@@ -137,6 +137,6 @@ process merge_csv {
 
   script:
   """
-  merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv
+  merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv.gz
   """
 }
