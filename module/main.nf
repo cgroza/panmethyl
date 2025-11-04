@@ -114,11 +114,11 @@ process methylation_to_csv {
   tuple val(sample_name), path(graph_mods), path(node_sizes), path(nodes_list), path(index)
 
   output:
-  tuple val(sample_name), path("${sample_name}.csv")
+  tuple val(sample_name), path("${sample_name}.csv.gz")
 
   script:
   """
-  nodes_levels.py ${nodes_list} ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv
+  nodes_levels.py ${nodes_list} ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv.gz
   """
 }
 
@@ -130,7 +130,7 @@ process merge_csv {
   publishDir "${params.out}/levels/", mode: 'copy'
 
   input:
-  tuple val(sample_name), path("graph_levels*.csv")
+  tuple val(sample_name), path("graph_levels*.csv.gz")
 
   output:
   tuple val(sample_name), path("${sample_name}.csv.gz")
