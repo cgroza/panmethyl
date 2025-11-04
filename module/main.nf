@@ -42,7 +42,7 @@ process align_graphaligner {
   memory params.memory
   time params.time
 
-  publishDir "${params.out}/gafs/", mode: 'copy'
+  publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
   input:
   tuple val(sample_name), path(bam_path), path(graph_path)
@@ -64,7 +64,7 @@ process align_minigraph {
   memory params.memory
   time params.time
 
-  publishDir "${params.out}/gafs/", mode: 'copy'
+  publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
   input:
   tuple val(sample_name), path(bam_path), path(graph_path)
