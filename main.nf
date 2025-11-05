@@ -25,7 +25,7 @@ workflow {
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
-      row -> [row.sample, file(row.path)]
+      row -> [row.sample, file(row.path, checkIfExists: true)]
     }.set{bams_ch}
 
     if(params.aligner == "minigraph") {
@@ -38,14 +38,14 @@ workflow {
 
   if (params.gafs) {
     Channel.fromPath(params.gafs).splitCsv(header : true).map{
-      row -> [row.sample, file(row.bam), file(row.gaf)]}.set{gafs_ch}
+      row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
   bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{
-      row -> [row.sample, file(row.path)]
+      row -> [row.sample, file(row.path, checkIfExists: true)]
     }.set{graph_methylation_ch}
   }
 
@@ -54,7 +54,7 @@ workflow {
 
   if (params.vcfs) {
     Channel.fromPath(params.vcfs).splitCsv(header : true).map{
-      row -> [row.sample, file(row.path)]}.set(vcf_ch)
+      row -> [row.sample, file(row.path, checkIfExists: true)]}.set(vcf_ch)
     annotate_vcf(vcf_ch.combine(merged_ch, by: 0))
   }
 }
