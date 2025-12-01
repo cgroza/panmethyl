@@ -1,8 +1,4 @@
 process annotate_vcf {
-  cpus params.cpus
-  memory params.memory
-  time '12h'
-
   input:
   tuple val(sample), path(vcf), path(mods)
 
@@ -18,10 +14,6 @@ process annotate_vcf {
 }
 
 process index_graph {
-  cpus 1
-  memory "20G"
-  time '3h'
-
   publishDir "${params.out}/index/", mode: 'copy'
 
   input:
@@ -39,10 +31,6 @@ process index_graph {
 }
 
 process align_graphaligner {
-  cpus params.cpus
-  memory params.memory
-  time params.time
-
   publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
   input:
@@ -61,10 +49,6 @@ process align_graphaligner {
 }
 
 process align_minigraph {
-  cpus params.cpus
-  memory params.memory
-  time params.time
-
   publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
   input:
@@ -81,10 +65,6 @@ process align_minigraph {
 }
 
 process bamtags_to_methylation {
-  cpus 2
-  time '6h'
-  memory '60G'
-
   publishDir "${params.out}/lifted/", mode: 'copy'
 
   input:
@@ -106,10 +86,6 @@ process bamtags_to_methylation {
 }
 
 process methylation_to_csv {
-  cpus 1
-  time '6h'
-  memory '60G'
-
   input:
   tuple val(sample_name), path(graph_mods), path(node_sizes), path(nodes_list), path(index)
 
@@ -123,10 +99,6 @@ process methylation_to_csv {
 }
 
 process merge_csv {
-  cpus 1
-  time '6h'
-  memory '60G'
-
   publishDir "${params.out}/levels/", mode: 'copy'
 
   input:
