@@ -15,7 +15,7 @@ include { annotate_vcf; index_graph; align_graphaligner; align_minigraph; bamtag
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
-  index_graph(graph_ch)
+  index_graph(graph_ch, channel.value(params.motif))
 
   bam_methylation_ch = channel.empty()
   graph_methylation_ch = channel.empty()
@@ -41,7 +41,7 @@ workflow {
       row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index)).set{bam_methylation_ch}
+  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index), channel.value(params.tag)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{

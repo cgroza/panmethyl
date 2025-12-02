@@ -18,6 +18,7 @@ process index_graph {
 
   input:
   path(graph_path)
+  val(motif)
 
   output:
   tuple path("node_sizes.csv"), path("nodes_list.csv"), path("index.csv.gz"), emit: graph_index
@@ -26,7 +27,7 @@ process index_graph {
   """
   awk '\$1 == "S" {print \$2, length(\$3)}' ${graph_path} > node_sizes.csv
   awk '{print \$1}' node_sizes.csv > nodes_list.csv
-  index_nucleotide.py ${graph_path} ${params.motif} | gzip > index.csv.gz
+  index_nucleotide.py ${graph_path} ${motif} | gzip > index.csv.gz
   """
 }
 
@@ -70,6 +71,7 @@ process bamtags_to_methylation {
   input:
   tuple val(sample_name), path(bam_path), path(gaf_path),
     path(node_sizes), path(nodes_list), path(index)
+  val(tag)
 
   output:
   tuple val(sample_name), path("${sample_name}.graph_mods")
@@ -77,7 +79,7 @@ process bamtags_to_methylation {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -T ${params.tag[0]} -b ${bam_path} -B ${params.tag} | pigz > ${sample_name}.mods.gz
+  tagtobed -T ${tag[0]} -b ${bam_path} -B ${tag} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.mods.gz | sort ) | \
