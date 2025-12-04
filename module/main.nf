@@ -1,14 +1,16 @@
 process annotate_vcf {
+  publishDir "${params.out}/methylation_vcfs/", mode: 'copy'
   input:
   tuple val(sample), path(vcf), path(mods)
 
   output:
-  tuple val(sample), path("${sample}.mods.vcf.gz")
+  tuple val(sample), path("${sample}.mods.vcf.gz*")
 
   script:
   """
   annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf
   bgzip ${sample}.mods.vcf
+  tabix ${sample}.mods.vcf.gz
   """
 
 }
