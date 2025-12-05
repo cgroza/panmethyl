@@ -4,11 +4,11 @@ process annotate_vcf {
   tuple val(sample), path(vcf), path(mods)
 
   output:
-  tuple val(sample), path("${sample}.mods.vcf.gz*")
+  tuple val(sample), path("${sample}.mods.vcf.gz*"), path("${sample}.mods.tsv")
 
   script:
   """
-  annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf
+  annotate_vcf.py ${vcf} ${mods} ${sample}.mods.vcf > ${sample}.mods.tsv
   bgzip ${sample}.mods.vcf
   tabix ${sample}.mods.vcf.gz
   """
