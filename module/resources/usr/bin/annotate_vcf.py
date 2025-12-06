@@ -12,6 +12,11 @@ def parse_path_re(s):
         nodes.append((m.group(1), m.group(2)))
     return nodes
 
+def path_to_str(path):
+    return "".join([node[0] + node[1] for node in path])
+
+def drop_source_sink(path):
+    return path[1:][:-1]
 
 vcf = sys.argv[1]
 mods = gzip.open(sys.argv[2])
@@ -44,7 +49,7 @@ for record in reader:
 
     for g in genotype:
         if g is not None:
-            paths[g] = parse_path_re(record.INFO['AT'][g])
+            paths[g] = drop_source_sink(parse_path_re(record.INFO['AT'][g]))
 
     pmn = {}
     pml = {}
@@ -65,7 +70,7 @@ for record in reader:
                 nodes_depths.append(",".join([str(n[2]) for n in node_mods[node[1]]]))
                 nodes_levels.append(",".join([str(n[3]) for n in node_mods[node[1]]]))
         print(record.CHROM, record.POS, record.ID[0], str(g),
-              record.INFO['AT'][g],
+              path_to_str(paths[g]),
               ";".join(nodes_positions),
               ",".join(nodes_strands),
               ",".join(nodes_depths),
