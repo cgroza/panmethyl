@@ -1,5 +1,5 @@
 process annotate_vcf {
-  publishDir "${params.out}/methylation_vcfs/", mode: 'copy'
+  publishDir "${params.out}/annotation/", mode: 'copy'
   input:
   tuple val(sample), path(vcf), path(mods)
 
