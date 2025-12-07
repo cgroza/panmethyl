@@ -5,6 +5,7 @@ params.vcfs = false
 params.graph_mods = false
 params.graph = "graph.gfa"
 params.tag = "C+m."
+params.missing = 0
 params.motif = "CG"
 params.aligner = "GraphAligner"
 params.cpus = 40
@@ -41,7 +42,9 @@ workflow {
       row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index), channel.value(params.tag)).set{bam_methylation_ch}
+  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index),
+                         channel.value(params.tag),
+                         channel.value(params.missing)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{

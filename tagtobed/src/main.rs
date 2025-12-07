@@ -13,6 +13,7 @@ fn main() {
     opts.optopt("b", "", "set input bam", "NAME");
     opts.optopt("B", "", "name of base modification", "NAME");
     opts.optopt("T", "", "modified nucleotide", "ACTG");
+    opts.optopt("m", "", "value for nucleotides with missing values", "-1,0");
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
@@ -28,6 +29,7 @@ fn main() {
 
     let base_mod = matches.opt_str("B").unwrap_or("C+m.".to_string());
     let nuc_mod  = matches.opt_str("T").unwrap_or("C".to_string());
+    let missing  = matches.opt_str("m").expect("Values for missing nucleotides must be -1 (ignore) or 0 (unmodified).").parse::<i32>().unwrap();
 
     if !matches.opt_present("b") {
         eprintln!("No input provided.");
@@ -86,19 +88,9 @@ fn main() {
 
                         // calculate position of modified bases
                         let mut mod_bases : Vec<usize> = Vec::new();
+                        let mut mod_ml : Vec<i32> = Vec::new();
                         let mut i = 0;
-                        for mc in &mm_indices {
-                            // the current base is modified
-                            if *mc == 0 {
-                                mod_bases.push(nuc_pos_vec[i]);
-                            // skip mc bases, then take the modified base
-                            } else {
-                                i = i + mc;
-                                mod_bases.push(nuc_pos_vec[i]);
-                            }
-                            // we consumed the modified base
-                            i = i + 1;
-                        }
+                        let mut l = 0;
 
                         let ml_tag : Vec<i32> = match record.tags().get(b"ML").or_else(| | record.tags().get(b"Ml") ) {
                             Some(bam::record::tags::TagValue::IntArray(ml_tag))  => {
@@ -108,9 +100,28 @@ fn main() {
                             _ => { std::iter::repeat(-1).take(mod_bases.len()).collect() } // for ml
                         };
 
+                        for mc in &mm_indices {
+                            // the current base is modified
+                            if *mc == 0 {
+                                mod_bases.push(nuc_pos_vec[i]);
+                                mod_ml.push(ml_tag[l]);
+                            // skip mc bases, then take the modified base
+                            } else {
+                                mod_bases.extend(&nuc_pos_vec[i..i+mc]);
+                                mod_ml.extend(std::iter::repeat(missing).take(*mc));
+
+                                i = i + mc;
+                                mod_bases.push(nuc_pos_vec[i]);
+                                mod_ml.push(ml_tag[l])
+                            }
+                            // we consumed the modified base
+                            i = i + 1;
+                            l = l + 1;
+                        }
+
                         let _ = out_file.write_fmt(format_args!("{name}\t{bases}\n",
                                                                 name = std::str::from_utf8(record.name()).unwrap(),
-                                                                bases = zip(mod_bases, ml_tag).map(|b| b.0.to_string() + ":" + &b.1.to_string()).collect::<Vec<String>>().join(",")));
+                                                                bases = zip(mod_bases, mod_ml).map(|b| b.0.to_string() + ":" + &b.1.to_string()).collect::<Vec<String>>().join(",")));
 
                     }
                     _ => {}     // for mm

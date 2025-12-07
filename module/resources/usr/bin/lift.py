@@ -18,6 +18,9 @@ def parse_path_re(s):
 
 
 def increment_count(d, node, pos, score):
+    # nucleotide with missing value, ignore
+    if score == -1:
+        return
     if pos in d[node]:
         d[node][pos] = (d[node][pos][0] + 1, d[node][pos][1] + score)
     else:

@@ -67,13 +67,14 @@ process align_minigraph {
   """
 }
 
-process bamtags_to_methylation {
+process bamtags_to_bed {
   publishDir "${params.out}/lifted/", mode: 'copy'
 
   input:
   tuple val(sample_name), path(bam_path), path(gaf_path),
     path(node_sizes), path(nodes_list), path(index)
   val(tag)
+  val(missing)
 
   output:
   tuple val(sample_name), path("${sample_name}.graph_mods")
@@ -81,7 +82,7 @@ process bamtags_to_methylation {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -T ${tag[0]} -b ${bam_path} -B ${tag} | pigz > ${sample_name}.mods.gz
+  tagtobed -T ${tag[0]} -b ${bam_path} -B ${tag} -m ${missing} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.mods.gz | sort ) | \
