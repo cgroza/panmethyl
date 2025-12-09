@@ -42,7 +42,7 @@ workflow {
       row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_methylation(gafs_ch.combine(index_graph.out.graph_index),
+  bamtags_to_bed(gafs_ch.combine(index_graph.out.graph_index),
                          channel.value(params.tag),
                          channel.value(params.missing)).set{bam_methylation_ch}
 
