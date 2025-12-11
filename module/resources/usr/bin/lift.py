@@ -9,6 +9,36 @@ node_sizes_path = sys.argv[1]
 pickle_out = sys.argv[2]
 
 
+def cs2cg(cs):
+    cigar_ops = []
+    ops = re.findall(r"(:[0-9]+)|(\+[ACTGNactg]+)|(-[ACTGNactg]+)|(\*[ACTGNactg]{2})", cs)
+    n_mismatch = 0
+    for op in ops:
+        # did we continue a run of mismatches
+        if n_mismatch > 0 and len(op[3]) == 0:
+            cigar_ops.append(str(n_mismatch) + "X")
+            n_mismatch = 0
+
+        match op:
+            # match
+            case (m, '', '', ''):
+                cigar_ops.append(m[1:] + "=")
+                continue
+            # insertion
+            case ('', i, '', ''):
+                cigar_ops.append(str(len(i[1:])) + "I")
+                continue
+            # deletion
+            case ('', '', d, ''):
+                cigar_ops.append(str(len(d[1:])) + "D")
+                continue
+            # SNV
+            case ('', '', '', x):
+                n_mismatch =+ 1
+                continue
+    return "".join(cigar_ops)
+
+
 def parse_path_re(s):
     nodes = []
     matches = re.finditer(r"([<>])([a-zA-Z]*[0-9]+)", s)
@@ -67,9 +97,16 @@ for line in pb_aln:
     pstart = int(fields[7])
     pend = int(fields[8])
 
-    # cigar string
-    assert fields[12].startswith("cg:Z:")
-    cg = cigar.Cigar(fields[12][5:])
+    # handle cs:Z and cg:Z alignments
+    cg_str = None
+    if fields[12].startswith("cg:Z:"):
+        cg_str = fields[12][5:]
+    elif fields[12].startswith("cs:Z:"):
+        cg_str = cs2cg(fields[12][5:])
+    else:
+        assert fields[12].startswith("cs:Z:") or fields[12].startswith("cs:Z:")
+
+    cg = cigar.Cigar(cg_str)
 
     parsed_path = parse_path_re(path)
 
