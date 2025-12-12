@@ -104,7 +104,7 @@ for line in pb_aln:
     elif fields[12].startswith("cs:Z:"):
         cg_str = cs2cg(fields[12][5:])
     else:
-        assert fields[12].startswith("cs:Z:") or fields[12].startswith("cs:Z:")
+        assert fields[12].startswith("cs:Z:") or fields[12].startswith("cg:Z:")
 
     cg = cigar.Cigar(cg_str)
 
