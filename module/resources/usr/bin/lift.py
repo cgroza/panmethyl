@@ -79,6 +79,10 @@ for line in pb_aln:
 
     fields = line.split()
 
+    # unmapped
+    if fields[4] == "*":
+        continue
+
     assert fields[4] == "+"
 
     # this read has no modified bases
