@@ -91,6 +91,8 @@ process bamtags_to_bed {
 }
 
 process methylation_to_csv {
+  publishDir "${params.out}/lifted/", mode: 'copy'
+
   input:
   tuple val(sample_name), path(graph_mods), path(node_sizes), path(nodes_list), path(index)
 
