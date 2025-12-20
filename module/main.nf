@@ -1,4 +1,4 @@
-process annotate_vcf {
+process annotate_VCF {
   publishDir "${params.out}/annotation/", mode: 'copy'
   input:
   tuple val(sample), path(vcf), path(mods)
@@ -90,7 +90,7 @@ process bamtags_to_bed {
   """
 }
 
-process methylation_to_csv {
+process epigenome_to_CSV {
   publishDir "${params.out}/lifted/", mode: 'copy'
 
   input:
@@ -105,7 +105,7 @@ process methylation_to_csv {
   """
 }
 
-process merge_csv {
+process merge_CSV {
   publishDir "${params.out}/levels/", mode: 'copy'
 
   input:
