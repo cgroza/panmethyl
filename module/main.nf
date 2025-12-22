@@ -84,8 +84,8 @@ process bamtags_to_bed {
   samtools index ${bam_path}
   tagtobed -t ${task.cpus}  -T ${tag[0]} -b ${bam_path} -B ${tag} -m ${missing} | pigz > ${sample_name}.mods.gz
 
-  join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
-    <(gunzip -c ${sample_name}.mods.gz | sort ) | \
+  join -t \$'\\t' -1 1 -2 1 <(pigz -c ${gaf_path} | sort ) \
+    <(pigz -c ${sample_name}.mods.gz | sort ) | \
     lift.py ${node_sizes} ${sample_name}.graph_mods
   """
 }
