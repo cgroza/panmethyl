@@ -44,8 +44,8 @@ process align_graphaligner {
 
   script:
   """
-  samtools fasta --threads ${params.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  GraphAligner -t ${params.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
+  samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
+  GraphAligner -t ${task.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
   cut -f1-12,17 ${sample_name}.gaf | pigz > ${sample_name}.gaf.gz
   rm ${sample_name}.gaf
   """
@@ -62,8 +62,8 @@ process align_minigraph {
 
   script:
   """
-  samtools fasta --threads ${params.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  minigraph --vc -c -N 1 -t ${params.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | pigz > ${sample_name}.gaf.gz
+  samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
+  minigraph --vc -c -N 1 -t ${task.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | pigz > ${sample_name}.gaf.gz
   """
 }
 
@@ -82,7 +82,7 @@ process bamtags_to_bed {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -T ${tag[0]} -b ${bam_path} -B ${tag} -m ${missing} | pigz > ${sample_name}.mods.gz
+  tagtobed -t ${task.cpus}  -T ${tag[0]} -b ${bam_path} -B ${tag} -m ${missing} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(gunzip -c ${gaf_path} | sort ) \
     <(gunzip -c ${sample_name}.mods.gz | sort ) | \
