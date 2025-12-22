@@ -5,56 +5,42 @@ use std::env;
 use std::process;
 use std::iter::zip;
 use regex::Regex;
+use std::fmt;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let mut opts = Options::new();
-    opts.optopt("o", "", "set output file name", "NAME");
-    opts.optopt("b", "", "set input bam", "NAME");
-    opts.optopt("B", "", "name of base modification", "NAME");
-    opts.optopt("T", "", "modified nucleotide", "ACTG");
-    opts.optopt("m", "", "value for nucleotides with missing values", "-1,0");
-
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => { m }
-        Err(f) => { panic!("{}", f.to_string()) }
-    };
-
-    // write to stdout if no output provided
-    let mut out_file : Box<dyn Write> = if !matches.opt_present("o") {
-        Box::new(std::io::stdout())
-    } else {
-        Box::new(std::fs::File::create(matches.opt_str("o").unwrap()).unwrap())
-    };
-
-    let base_mod = matches.opt_str("B").unwrap_or("C+m.".to_string());
-    let nuc_mod  = matches.opt_str("T").unwrap_or("C".to_string());
-    let missing  = matches.opt_str("m").expect("Values for missing nucleotides must be -1 (ignore) or 0 (unmodified).").parse::<i32>().unwrap();
-
-    if !matches.opt_present("b") {
-        eprintln!("No input provided.");
-        process::exit(1);
+struct Mod {
+    name : String,
+    bases : Vec<usize>,
+    levels : Vec<i32>
+}
+// Implement the Display trait for Circle
+impl fmt::Display for Mod {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Use write! to format the output into the formatter f
+        write!(f, "{name}\t{bases}\n",
+                     name = self.name,
+                     bases = zip(&self.bases, &self.levels).map(|b| b.0.to_string() + ":" + &b.1.to_string()).collect::<Vec<String>>().join(","))
     }
+}
 
-    let mut reader = bam::IndexedReader::from_path(matches.opt_str("b").unwrap()).unwrap();
-    let r  = reader.full();
-
-    for nr  in r {
+fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, nuc_mod : &String, missing : i32) -> Option<Mod> {
         match nr {
             Ok(record) => {
+
+                let mut mod_bases : Vec<usize> = Vec::new();
+                let mut mod_ml : Vec<i32> = Vec::new();
                 // retrieve tag and sequence
                 match record.tags().get(b"MM").or_else(| | record.tags().get(b"Mm") ) {
                     Some(bam::record::tags::TagValue::String(mm_tag_u8,  bam::record::tags::StringType::String))  => {
                         // skip secondary and supplementary alignments
                         if record.flag().is_supplementary() || record.flag().is_secondary() {
-                            continue
+                            return None;
                         }
 
                         let mut mm_tag = std::str::from_utf8(mm_tag_u8).unwrap();
 
                         // nothing to do if there are no base modifications
                         if mm_tag.len() == 0 {
-                            continue;
+                            return None;
                         }
                         mm_tag = &mm_tag[0..mm_tag.len() - 1];
 
@@ -69,13 +55,13 @@ fn main() {
                         // parse mm tag and modified nucleotide in sequence
 
                         // retrieve the positions of specified nucleotides in read
-                        let nuc_pos_vec : Vec<usize> = seq.match_indices(&nuc_mod).map(|c| c.0).collect();
+                        let nuc_pos_vec : Vec<usize> = seq.match_indices(nuc_mod).map(|c| c.0).collect();
 
                         let re = Regex::new(r"^[0-9]+$").unwrap();
                         let mm_pieces : Vec<&str> = mm_tag.split(|c: char| c == ',' || c == ';').collect();
 
                         // find the beginning of the desired base modification
-                        let mod_start = match mm_pieces.iter().position(|&b| b.contains(&base_mod)) {
+                        let mod_start = match mm_pieces.iter().position(|&b| b.contains(base_mod)) {
                             Some(m) => { m },
                             None => { eprintln!("Could not find tag {}", base_mod); process::exit(1) }
                         };
@@ -87,8 +73,6 @@ fn main() {
                         let mm_indices : Vec<usize> = mm_pieces.iter().skip(mod_start + 1).take_while(|s| re.is_match(s)).map(|i| { i.parse::<usize>().unwrap() }).collect();
 
                         // calculate position of modified bases
-                        let mut mod_bases : Vec<usize> = Vec::new();
-                        let mut mod_ml : Vec<i32> = Vec::new();
                         let mut i = 0;
                         let mut l = 0;
 
@@ -119,18 +103,56 @@ fn main() {
                             l = l + 1;
                         }
 
-                        let _ = out_file.write_fmt(format_args!("{name}\t{bases}\n",
-                                                                name = std::str::from_utf8(record.name()).unwrap(),
-                                                                bases = zip(mod_bases, mod_ml).map(|b| b.0.to_string() + ":" + &b.1.to_string()).collect::<Vec<String>>().join(",")));
+                        Some(Mod{name : String::from_utf8(record.name().to_vec()).unwrap(), bases : mod_bases, levels : mod_ml})
 
                     }
-                    _ => {}     // for mm
+                    _ => { Some(Mod{name : String::from_utf8(record.name().to_vec()).unwrap(), bases: mod_bases, levels : mod_ml } ) }     // for mm
                 }
             },
             Err(e) => {
                 eprintln!("{}", e);
-                process::exit(1);
+                None
             }
         }
+
+}
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let mut opts = Options::new();
+    opts.optopt("o", "", "set output file name", "NAME");
+    opts.optopt("b", "", "set input bam", "NAME");
+    opts.optopt("B", "", "name of base modification", "NAME");
+    opts.optopt("T", "", "modified nucleotide", "ACTG");
+    opts.optopt("m", "", "value for nucleotides with missing values", "-1,0");
+    opts.optopt("t", "", "number of threads", "INT");
+
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => { m }
+        Err(f) => { panic!("{}", f.to_string()) }
+    };
+
+    // write to stdout if no output provided
+    let mut out_file : Box<dyn Write> = if !matches.opt_present("o") {
+        Box::new(std::io::stdout())
+    } else {
+        Box::new(std::fs::File::create(matches.opt_str("o").unwrap()).unwrap())
+    };
+
+    let threads = matches.opt_str("t").and_then(|t| Some(t.parse::<u16>().unwrap_or(1))).unwrap();
+    let base_mod = matches.opt_str("B").unwrap_or("C+m.".to_string());
+    let nuc_mod  = matches.opt_str("T").unwrap_or("C".to_string());
+    let missing  = matches.opt_str("m").expect("Values for missing nucleotides must be -1 (ignore) or 0 (unmodified).").parse::<i32>().unwrap();
+
+    if !matches.opt_present("b") {
+        eprintln!("No input provided.");
+        process::exit(1);
+    }
+
+    let reader = bam::BamReader::from_path(matches.opt_str("b").unwrap(), threads).unwrap();
+
+    for nr  in reader {
+        let read_mods = process_record(nr, &base_mod, &nuc_mod, missing).unwrap();
+        writeln!(&mut out_file, "{}", read_mods.to_string());
     }
 }
