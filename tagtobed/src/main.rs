@@ -152,7 +152,10 @@ fn main() {
     let reader = bam::BamReader::from_path(matches.opt_str("b").unwrap(), threads).unwrap();
 
     for nr  in reader {
-        let read_mods = process_record(nr, &base_mod, &nuc_mod, missing).unwrap();
-        writeln!(&mut out_file, "{}", read_mods.to_string());
+        let read_mods = process_record(nr, &base_mod, &nuc_mod, missing);
+        match read_mods {
+            Some(m) => { writeln!(&mut out_file, "{}", m.to_string()); }
+            None => {}
+        }
     }
 }
