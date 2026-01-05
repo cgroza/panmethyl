@@ -32,12 +32,15 @@ for line in mods:
     node, pos, strand, depth, level = line.decode().split()
     if node not in node_mods:
         node_mods[node] = []
+    # skip nucleotides without coverage
+    if float(depth) <= 0:
+        continue
     node_mods[node].append((int(pos), strand, float(depth), float(level)))
 
 mods.close()
 
 reader = vcfpy.Reader.from_path(vcf)
-reader.header.add_format_line({'ID' : 'PMN', 'source' : 'panmethyl', 'Type' : 'Float', 'Description' : 'Number of modified nucleotides on the path.', 'Number' : '.'})
+reader.header.add_format_line({'ID' : 'PMN', 'source' : 'panmethyl', 'Type' : 'Float', 'Description' : 'Number of modified nucleotides with coverage on the path.', 'Number' : '.'})
 reader.header.add_format_line({'ID' : 'PML', 'source' : 'panmethyl', 'Type' : 'Float', 'Description' : 'Average modification levels across the the path.', 'Number' : '.'})
 reader.header.add_format_line({'ID' : 'PMD', 'source' : 'panmethyl', 'Type' : 'Float', 'Description' : 'Average depth across the modified nucleotides.', 'Number' : '.'})
 
