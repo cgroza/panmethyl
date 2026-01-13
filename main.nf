@@ -4,7 +4,7 @@ params.gafs = false
 params.vcfs = false
 params.graph_mods = false
 params.graph = "graph.gfa"
-params.tag = "C+m."
+params.code = "C+m."
 params.missing = 0
 params.motif = "CG"
 params.aligner = "GraphAligner"
@@ -43,7 +43,7 @@ workflow {
   }
 
   bamtags_to_bed(gafs_ch.combine(index_graph.out.graph_index),
-                         channel.value(params.tag),
+                         channel.value(params.code),
                          channel.value(params.missing)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
