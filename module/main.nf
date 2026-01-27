@@ -12,7 +12,54 @@ process annotate_VCF {
   bgzip ${sample}.mods.vcf
   tabix ${sample}.mods.vcf.gz
   """
+}
 
+process bed_to_graph {
+  input:
+  path(index), path(bed)
+  output:
+  path("annotation.gaf"), path("annotation.bed")
+
+  script:
+  """
+  awk '{\$4=\$4"_"NR; print \$0}' ${bed} | sort -k4 > annotation.bed
+  vg annotate -x ${index}/index.gfa -b annotation.bed -F > annotation.gaf
+  """
+}
+
+process epiannotate_bed {
+  publishDir "${params.out/annotation}", mode: 'copy'
+  input:
+  tuple val(sample), path(mods), path(gaf), path(bed)
+  output:
+  tuple val(sample), path("${sample}.bed")
+
+  script:
+  """
+  annotate_bed.py ${gaf} ${mods} ${sample_name} > ${sample}_lifted.bed
+  head -n1 ${sample}_lifted.bed > ${sample}.bed
+  join -1 4 -2 1 ${bed} <(awk 'NR > 1' ${sample}_lifted.bed) | awk -v OF='\t' '{sub(/_[0-9]+/,"",\$1); print(\$0)}' >> ${sample}.bed
+  """
+}
+
+process merge_epiannotation {
+  input:
+  path(beds)
+  output:
+  path("merged_epiannoation.bed")
+  script:
+  """
+  template=\$(ls ${beds} | head -n1)
+
+  cut -f1-4 \${template} > body
+
+  for \b in ${beds}
+  do
+  cut -f5-6 \${b} > \$b.col
+  done
+
+  paste body *.col > merged_epiannoation.bed
+  """
 }
 
 process index_graph {
