@@ -12,7 +12,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-include { annotate_vcf; index_graph; align_graphaligner; align_minigraph; bamtags_to_methylation; methylation_to_csv; merge_csv } from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_methylation; methylation_to_csv; merge_csv } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
