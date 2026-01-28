@@ -18,7 +18,7 @@ process bed_to_graph {
   input:
   tuple path(index), path(bed)
   output:
-  path("annotation.gaf"), path("annotation.bed")
+  tuple path("annotation.gaf"), path("annotation.bed")
 
   script:
   """
