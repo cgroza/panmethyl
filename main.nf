@@ -60,4 +60,9 @@ workflow {
       row -> [row.sample, file(row.path, checkIfExists: true)]}.set(vcf_ch)
     annotate_vcf(vcf_ch.combine(merged_ch, by: 0))
   }
+
+  if (params.bed) {
+    bed_to_graph(index_graph.out.graph_index.combine(Channel.fromPath(params.bed))).set{bed_ch}
+    epiannotate_bed(merged_ch.combine(bed_ch))
+  }
 }
