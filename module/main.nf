@@ -16,14 +16,14 @@ process annotate_VCF {
 
 process bed_to_graph {
   input:
-  tuple path(index), path(bed)
+  tuple path(graph), path(bed)
   output:
   tuple path("annotation.gaf"), path("annotation.bed")
 
   script:
   """
   awk '{\$4=\$4"_"NR; print \$0}' ${bed} | sort -k4 > annotation.bed
-  vg annotate -x ${index}/index.gfa -b annotation.bed -F > annotation.gaf
+  vg annotate -x ${graph} -b annotation.bed -F > annotation.gaf
   """
 }
 
