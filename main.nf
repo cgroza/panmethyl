@@ -12,7 +12,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_bed; epigenome_to_CSV; merge_CSV; bed_to_graph; epiannotate_bed; merge_epiannotation} from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED} from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
@@ -42,7 +42,7 @@ workflow {
       row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_bed(gafs_ch.combine(index_graph.out.graph_index),
+  bamtags_to_BED(gafs_ch.combine(index_graph.out.graph_index),
                          channel.value(params.code),
                          channel.value(params.missing)).set{bam_methylation_ch}
 
@@ -62,7 +62,7 @@ workflow {
   }
 
   if (params.bed) {
-    bed_to_graph(graph_ch.combine(Channel.fromPath(params.bed))).set{bed_ch}
-    epiannotate_bed(merged_ch.combine(bed_ch))
+    BED_to_graph(graph_ch.combine(Channel.fromPath(params.bed))).set{bed_ch}
+    annotate_BED(merged_ch.combine(bed_ch))
   }
 }

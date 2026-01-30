@@ -14,7 +14,7 @@ process annotate_VCF {
   """
 }
 
-process bed_to_graph {
+process BED_to_graph {
   input:
   tuple path(graph), path(bed)
   output:
@@ -27,7 +27,7 @@ process bed_to_graph {
   """
 }
 
-process epiannotate_bed {
+process annotate_BED {
   publishDir "${params.out}/annotation", mode: 'copy'
   input:
   tuple val(sample), path(mods), path(gaf), path(bed)
@@ -42,7 +42,7 @@ process epiannotate_bed {
   """
 }
 
-process merge_epiannotation {
+process merge_BED {
   input:
   path(beds)
   output:
@@ -114,7 +114,7 @@ process align_minigraph {
   """
 }
 
-process bamtags_to_bed {
+process bamtags_to_BED {
   publishDir "${params.out}/lifted/", mode: 'copy'
 
   input:
