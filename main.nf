@@ -12,7 +12,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_bed; epigenome_to_CSV; merge_CSV; bed_to_graph; epiannotate_bed; epiannotate_bed; merge_epiannotation} from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_bed; epigenome_to_CSV; merge_CSV; bed_to_graph;  epiannotate_bed; merge_epiannotation} from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
