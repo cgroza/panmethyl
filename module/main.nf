@@ -28,7 +28,7 @@ process bed_to_graph {
 }
 
 process epiannotate_bed {
-  publishDir "${params.out/annotation}", mode: 'copy'
+  publishDir "${params.out}/annotation", mode: 'copy'
   input:
   tuple val(sample), path(mods), path(gaf), path(bed)
   output:
