@@ -32,6 +32,8 @@ for line in mods:
 mods.close()
 
 gaf = open(gaf_path)
+# skip header
+gaf.readline()
 
 fields = ["qname", "qlen", "qstart", "qend", "strand", "path",
           "pname", "plen", "pstart", "pend", "matches", "alnblen", "mapq", "AS", "cs"]
