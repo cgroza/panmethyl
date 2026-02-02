@@ -30,11 +30,11 @@ print("CHROM", "POS", "ID", "allele", "path", "node_positions",
 
 for line in mods:
     node, pos, strand, depth, level = line.decode().split()
+    if float(depth) <= 0:
+        continue
     if node not in node_mods:
         node_mods[node] = []
     # skip nucleotides without coverage
-    if float(depth) <= 0:
-        continue
     node_mods[node].append((int(pos), strand, float(depth), float(level)))
 
 mods.close()
