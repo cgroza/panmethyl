@@ -35,13 +35,12 @@ gaf = open(gaf_path)
 # skip header
 gaf.readline()
 
-fields = ["qname", "qlen", "qstart", "qend", "strand", "path",
-          "pname", "plen", "pstart", "pend", "matches", "alnblen", "mapq", "AS", "cs"]
+fields = ["qname", "qlen", "qstart", "qend", "strand", "pname", "plen", "pstart", "pend", "matches", "alnblen", "mapq", "AS", "cs"]
 
 print("QNAME", 'PATH', 'FORMAT', sample_name, sep = '\t')
 for line in gaf:
     record = dict(zip(fields, line.rstrip().split()))
-    nodes = parse_path_re(record["path"])
+    nodes = parse_path_re(record["pname"])
 
     pml = []
     pmd = []
