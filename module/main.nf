@@ -51,7 +51,8 @@ process merge_BED {
   """
   template=\$(ls ${beds} | head -n1)
 
-  cut -f1-4 \${template} > body
+  echo QNAME CHROM START END PATH FORMAT > body
+  qwk 'NR>1' \${template} | cut -f1-6 >> body
 
   for b in ${beds}
   do
