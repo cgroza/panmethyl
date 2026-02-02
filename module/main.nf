@@ -52,7 +52,7 @@ process merge_BED {
   template=\$(ls ${beds} | head -n1)
 
   echo QNAME CHROM START END PATH FORMAT > body
-  qwk 'NR>1' \${template} | cut -f1-6 >> body
+  awk 'NR>1' \${template} | cut -f1-6 >> body
 
   for b in ${beds}
   do
