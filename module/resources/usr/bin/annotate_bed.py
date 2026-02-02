@@ -35,7 +35,7 @@ gaf = open(gaf_path)
 # skip header
 gaf.readline()
 
-fields = ["qname", "qlen", "qstart", "qend", "strand", "pname", "plen", "pstart", "pend", "matches", "alnblen", "mapq", "AS", "cs"]
+fields = ["qname", "qlen", "qstart", "qend", "strand", "pname", "plen", "pstart", "pend", "matches", "alnblen", "mapq", "cs"]
 
 print("QNAME", 'PATH', 'FORMAT', sample_name, sep = '\t')
 for line in gaf:
