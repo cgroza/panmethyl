@@ -53,7 +53,7 @@ process merge_BED {
 
   cut -f1-4 \${template} > body
 
-  for \b in ${beds}
+  for b in ${beds}
   do
   cut -f5-6 \${b} > \$b.col
   done
