@@ -37,12 +37,13 @@ process annotate_BED {
   script:
   """
   annotate_bed.py ${gaf} ${mods} ${sample} > ${sample}_lifted.bed
-  head -n1 ${sample}_lifted.bed > ${sample}.bed
+  echo -e "QNAME\tCHROM\tSTART\tEND\tPATH\tFORMAT" > ${sample}.bed
   join -1 4 -2 1 ${bed} <(awk 'NR > 1' ${sample}_lifted.bed) | awk -v OFS='\t' '{sub(/_[0-9]+/,"",\$1); print(\$0)}' >> ${sample}.bed
   """
 }
 
 process merge_BED {
+  publishDir "${params.out}/annotation", mode: 'copy'
   input:
   path(beds)
   output:
