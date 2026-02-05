@@ -30,13 +30,13 @@ process BED_to_graph {
 process annotate_BED {
   publishDir "${params.out}/annotation", mode: 'copy'
   input:
-  tuple val(sample), path(mods), path(gaf), path(bed)
+  tuple val(sample), path(mods), path(gaf), path(bed), path(node_sizes)
   output:
   tuple val(sample), path("${sample}.bed")
 
   script:
   """
-  annotate_bed.py ${gaf} ${mods} ${sample} > ${sample}_lifted.bed
+  annotate_bed.py ${gaf} ${mods} ${sample} ${node_sizes} > ${sample}_lifted.bed
   echo -e "QNAME\tCHROM\tSTART\tEND\tPATH\tFORMAT" > ${sample}.bed
   join -1 4 -2 1 ${bed} <(awk 'NR > 1' ${sample}_lifted.bed) | awk -v OFS='\t' '{sub(/_[0-9]+/,"",\$1); print(\$0)}' >> ${sample}.bed
   """
