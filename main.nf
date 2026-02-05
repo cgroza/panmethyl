@@ -63,6 +63,6 @@ workflow {
 
   if (params.bed) {
     BED_to_graph(graph_ch.combine(Channel.fromPath(params.bed))).set{bed_ch}
-    annotate_BED(merged_ch.combine(bed_ch).combine(index_graph.out.graph_index.map{it[1]}))
+    annotate_BED(merged_ch.combine(bed_ch).combine(index_graph.out.graph_index.map{it[0]}))
   }
 }
