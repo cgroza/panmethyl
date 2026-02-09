@@ -169,3 +169,22 @@ process merge_CSV {
   merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv.gz
   """
 }
+
+
+process lift_nucleotides {
+  publishDir "${prams.out}/tracks", mode: 'copy'
+  input:
+  path(graph)
+  path(index)
+
+  output:
+  path("GFA_paths.bed")
+
+  script:
+  """
+  zcat ${index} | awk '$4 ~ "N"' > cpgs.txt
+  zcat ${index} | awk '$4 ~ "E"' > cpgs_edges.txt
+  lift_cpgs.py cpgs.txt ${graph} > GFA_paths.bed
+  lift_cpgs_edges.py cpg_edges.txt ${graph} >> GFA_paths.bed
+  """
+}
