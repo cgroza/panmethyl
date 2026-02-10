@@ -2,6 +2,7 @@ params.out = "out"
 params.bams = false
 params.gafs = false
 params.vcfs = false
+params.bed = false
 params.graph_mods = false
 params.graph = "graph.gfa"
 params.code = "C+m."
