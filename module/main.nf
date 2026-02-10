@@ -178,7 +178,7 @@ process lift_nucleotides {
   path(index)
 
   output:
-  path("GFA_paths.bed")
+  path("GFA_paths.bed.gz")
 
   script:
   """
@@ -186,5 +186,6 @@ process lift_nucleotides {
   zcat ${index} | awk '\$4 ~ "E" {print \$1, \$2}' > cpg_edges.txt
   lift_cpgs.py cpgs.txt ${graph} > GFA_paths.bed
   lift_cpg_edges.py cpg_edges.txt ${graph} >> GFA_paths.bed
+  gzip GFA_paths.bed
   """
 }
