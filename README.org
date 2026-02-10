@@ -24,22 +24,15 @@ The format of this CSV file is:
  For example, the location of modified bases must be encoded in the ~MM~ tag
  and the likelihoods of methylation must be encoded in the ~ML~ tag.
 
-+ ~--graph~ - Pangenome in rGFA format. Currently, only graphs created with
-  ~minigraph~ are supported, but can be extended to all graphs by
-  replacing minigraph with other graph aligners.
++ ~--graph~ - Pangenome in GFA format.
 
 ** Outputs
 
-Panmethyl outputs a ~.graphMethylaion~ plain text file for each entry in
+Panmethyl outputs a CSV plain text file for each entry in
 ~--bams~. This file is a CSV file listing the graph node, the position of the
 modified base, its strand, the coverage on the modified base, and the average
 methylation level, encoded on a scale from 0 to 255 (as in the ML tag).
 
-** Geeneral steps in the pipeline
-
-1. Index the position of every CpG dinucleotide in the input graph (~bin/index_cpg.py~).
-2. Convert BAM file to FASTQ (~samtools~).
-3. Annotate reads in FASTQ with methylation information from the BAM (~tagtobed~).
-4. Map the FASTQ to the pangenome with ~minigraph~.
-5. Lift the methylation annotation from the reads to the graph (~bin/lift_5mC.py~).
-6. Count the average methylation level of CpGs (~bin/nodes_methylation.py~).
+** Citation
+If using panmethyl, please cite:
+- Groza, C., Ge, B., Cheung, W. A., Pastinen, T., & Bourque, G. (2025). Expanded methylome and quantitative trait loci detection by long-read profiling of personal DNA. Genome research, 35(4), 644–652. https://doi.org/10.1101/gr.279240.124
