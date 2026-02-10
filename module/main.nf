@@ -182,8 +182,8 @@ process lift_nucleotides {
 
   script:
   """
-  zcat ${index} | awk '\$4 ~ "N" {print $1, $2, $3}' > cpgs.txt
-  zcat ${index} | awk '\$4 ~ "E" {print $1, $2, $3}' > cpgs_edges.txt
+  zcat ${index} | awk '\$4 ~ "N" {print \$1, \$2, \$3}' > cpgs.txt
+  zcat ${index} | awk '\$4 ~ "E" {print \$1, \$2, \$3}' > cpgs_edges.txt
   lift_cpgs.py cpgs.txt ${graph} > GFA_paths.bed
   lift_cpgs_edges.py cpg_edges.txt ${graph} >> GFA_paths.bed
   """
