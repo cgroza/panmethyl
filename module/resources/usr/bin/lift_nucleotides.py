@@ -4,7 +4,7 @@ import gzip
 
 nuc_index = dict()
 
-with gzip.open(sys.argv[1], 'r', encoding = 'ascii') as cpgs_file:
+with gzip.open(sys.argv[1], 'rt', encoding = 'ascii') as cpgs_file:
     for line in cpgs_file:
         node, offset, strand, nucset = line.rstrip().split()
         if int(node) not in nuc_index:
