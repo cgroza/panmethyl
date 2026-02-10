@@ -20,7 +20,7 @@ if len(nuc) == 1:
         while nuc_i > -1:
             print(name, nuc_i, "+", "N" + str(i))
             nuc_i = seq.find(nuc, nuc_i + 1)
-        i = i + 1
+            i = i + 1
 
 elif nuc == 'CG':
     node_ends = {}
@@ -43,7 +43,7 @@ elif nuc == 'CG':
             print(name, cpg_i, "+", "N" + str(i))
             print(name, cpg_i + 1, "-", "N" + str(i))
             cpg_i = seq.find("CG", cpg_i + 2)
-        i = i + 1
+            i = i + 1
 
     gfa.seek(0)
 
