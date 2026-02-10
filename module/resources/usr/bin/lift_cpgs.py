@@ -5,7 +5,7 @@ cpg_index = dict()
 
 with open(sys.argv[1], 'r') as cpgs_file:
     for line in cpgs_file:
-        node, offset, strand = line.rstrip().split(',')
+        node, offset, strand = line.rstrip().split()
         # no need to lift both nucleotides
         if strand == '-':
             continue
