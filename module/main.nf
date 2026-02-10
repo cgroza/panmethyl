@@ -172,7 +172,7 @@ process merge_CSV {
 
 
 process lift_nucleotides {
-  publishDir "${prams.out}/tracks", mode: 'copy'
+  publishDir "${params.out}/tracks", mode: 'copy'
   input:
   path(graph)
   path(index)
