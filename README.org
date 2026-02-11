@@ -1,6 +1,6 @@
 * Panmethyl
 
-Panmethyl is a nextflow pipeline maps epigenetic data from long-reads to pangenomes.
+Panmethyl is a nextflow pipeline that maps epigenetic data from long-reads to pangenomes.
 
 ** Apptainer image
 #+begin_src shell
@@ -28,8 +28,8 @@ The format of this CSV file is:
 + ~--lift~ - Lift nucleotide positions from graph coordinates to path (assembly) coordinates. Assumes GFA with ~P~ lines. Useful for generating frequency distributions.
 + ~--bed~ - BED file enumerating the intervals over which to summarize modification levels. Intervals must be in path (assembly) coordinates.
 + ~--aligner~ - Choose which aligner will map the reads to the graph. Possibilities are `minigraph` and `GraphAligner`.
-+ ~--code~ - Modification code in hte MM/ML tags, according to the SAM spec. Examples are `C+m.` and `C+m?`.
-+ `--motif~ - Nucleotides (or dinucleotides)  targeted by the modification. Possible values are `A`, `T`, `G`, `C`, `CG`.
++ ~--code~ - Modification code in hte MM/ML tags, according to the SAM spec. Examples are ~C+m.~ and ~C+m?~.
++ ~--motif~ - Nucleotides (or dinucleotides)  targeted by the modification. Possible values are ~A~, ~T~, ~G~, ~C~, ~CG~.
 
 
 ** Outputs
