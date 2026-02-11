@@ -1,19 +1,3 @@
-params.out = "out"
-params.bams = false
-params.gafs = false
-params.vcfs = false
-params.bed = false
-params.lift = false
-params.graph_mods = false
-params.graph = "graph.gfa"
-params.code = "C+m."
-params.missing = 0
-params.motif = "CG"
-params.aligner = "GraphAligner"
-params.cpus = 40
-params.memory =  '180G'
-params.time = '24h'
-
 include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_nucleotides } from './module'
 
 workflow {
