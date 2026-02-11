@@ -2,6 +2,7 @@ params.out = "out"
 params.bams = false
 params.gafs = false
 params.vcfs = false
+params.bed = false
 params.graph_mods = false
 params.graph = "graph.gfa"
 params.code = "C+m."
@@ -12,7 +13,7 @@ params.cpus = 40
 params.memory =  '180G'
 params.time = '24h'
 
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED} from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_nucleotides } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
@@ -23,6 +24,10 @@ workflow {
 
   gafs_ch = channel.empty()
   bams_ch = channel.empty()
+
+  if(params.lift) {
+    lift_nucleotides(graph_ch, index_graph.out.graph_index.map{it[2]})
+  }
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{

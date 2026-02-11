@@ -169,3 +169,20 @@ process merge_CSV {
   merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv.gz
   """
 }
+
+
+process lift_nucleotides {
+  publishDir "${params.out}/tracks", mode: 'copy'
+  input:
+  path(graph)
+  path(index)
+
+  output:
+  path("GFA_paths.bed.gz")
+
+  script:
+  """
+  lift_nucleotides.py ${index} ${graph} > GFA_paths.bed
+  gzip GFA_paths.bed
+  """
+}
