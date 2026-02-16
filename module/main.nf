@@ -38,7 +38,7 @@ process annotate_BED {
   """
   annotate_bed.py ${gaf} ${mods} ${sample} ${node_sizes} > ${sample}_lifted.bed
   echo -e "QNAME\tCHROM\tSTART\tEND\tPATH\tFORMAT\t${sample}" > ${sample}.bed
-  join -1 4 -2 1 ${bed} <(awk 'NR > 1' ${sample}_lifted.bed) | awk -v OFS='\t' '{sub(/_[0-9]+/,"",\$1); print(\$0)}' >> ${sample}.bed
+  join -1 4 -2 1 ${bed} <(awk 'NR > 1' ${sample}_lifted.bed) | awk -v OFS='\t' '{sub(/_[0-9]+$/,"",\$1); print(\$0)}' >> ${sample}.bed
   """
 }
 
