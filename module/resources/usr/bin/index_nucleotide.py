@@ -44,11 +44,11 @@ elif len(nuc) == 2:
         node_ends[name] = (seq[0], seq[-1])
         node_sizes[name] = len(seq)
 
-        cpg_i = seq.find("CG", 0)
+        cpg_i = seq.find(nuc, 0)
         while cpg_i > -1:
             print(name, cpg_i, "+", "N" + str(i))
             print(name, cpg_i + 1, "-", "N" + str(i))
-            cpg_i = seq.find("CG", cpg_i + 2)
+            cpg_i = seq.find(nuc, cpg_i + 2)
             i = i + 1
 
     gfa.seek(0)
