@@ -79,7 +79,11 @@ fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, 
                         let ml_tag : Vec<i32> = match record.tags().get(b"ML").or_else(| | record.tags().get(b"Ml") ) {
                             Some(bam::record::tags::TagValue::IntArray(ml_tag))  => {
                                 // subset the ML values to the range specific to our base modification
-                                ml_tag.iter().skip(mod_start - prev_mods).take(mm_indices.len()).map(|e| e as i32).collect()
+                                if ml_tag.int_type().letter().is_ascii_lowercase() {
+                                    ml_tag.iter().skip(mod_start - prev_mods).take(mm_indices.len()).map(|e| (e + 128) as i32).collect()
+                                } else {
+                                    ml_tag.iter().skip(mod_start - prev_mods).take(mm_indices.len()).map(|e| e as i32).collect()
+                                }
                             }
                             _ => { std::iter::repeat(-1).take(mod_bases.len()).collect() } // for ml
                         };
