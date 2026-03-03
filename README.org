@@ -30,6 +30,7 @@ The format of this CSV file is:
 + ~--aligner~ - Choose which aligner will map the reads to the graph. Possibilities are `minigraph` and `GraphAligner`.
 + ~--code~ - Modification code in hte MM/ML tags, according to the SAM spec. Examples are ~C+m.~ and ~C+m?~.
 + ~--motif~ - Nucleotides (or dinucleotides)  targeted by the modification. Possible values are ~A~, ~T~, ~G~, ~C~, ~CG~.
++ ~--missing~ - How to count nucleotides with missing modification levels. Possible values are 0 or -1 (ignore).
 
 
 ** Outputs
