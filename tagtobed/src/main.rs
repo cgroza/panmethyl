@@ -63,7 +63,7 @@ fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, 
                         // find the beginning of the desired base modification
                         let mod_start = match mm_pieces.iter().position(|&b| b.contains(base_mod)) {
                             Some(m) => { m },
-                            None => { eprintln!("Could not find tag {}", base_mod); process::exit(1) }
+                            None => { eprintln!("Could not find tag {}", base_mod); return None; }
                         };
 
                         // how many other modifications did we skip to find mod_start
