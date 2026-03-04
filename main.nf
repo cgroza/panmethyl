@@ -2,7 +2,17 @@ include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtag
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
-  index_graph(graph_ch, channel.value(params.motif))
+
+  graph_index = channel.empty()
+  if(params.index) {
+    Channel.fromPath(params.index).map{
+      [file(it / 'node_sizes.csv', checkIfExists: true),
+       file(it / 'nodes_list.csv', checkIfExists: true),
+       file(it / 'index.csv.gz', checkIfExists: true)]
+    }.set{graph_ch}
+  } else {
+    index_graph(graph_ch, channel.value(params.motif)).out.graph_index.set{graph_index}
+  }
 
   bam_methylation_ch = channel.empty()
   graph_methylation_ch = channel.empty()
