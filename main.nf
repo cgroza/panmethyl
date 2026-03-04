@@ -38,8 +38,9 @@ workflow {
   }
 
   if (params.gafs) {
-    Channel.fromPath(params.gafs).splitCsv(header : true).map{
-      row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
+    Channel.fromPath(params.gafs).splitCsv(header : true)
+      .filter{row -> !row.sample.startsWith("#")}
+      .map{row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
   bamtags_to_BED(gafs_ch.combine(graph_index),
