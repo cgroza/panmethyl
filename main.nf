@@ -9,7 +9,7 @@ workflow {
       [file(it / 'node_sizes.csv', checkIfExists: true),
        file(it / 'nodes_list.csv', checkIfExists: true),
        file(it / 'index.csv.gz', checkIfExists: true)]
-    }.set{graph_ch}
+    }.set{graph_index}
   } else {
     index_graph(graph_ch, channel.value(params.motif)).out.graph_index.set{graph_index}
   }
