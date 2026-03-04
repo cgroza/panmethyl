@@ -124,7 +124,6 @@ process bamtags_to_BED {
   tuple val(sample_name), path(bam_path), path(gaf_path),
     path(node_sizes), path(nodes_list), path(index)
   val(code)
-  val(missing)
 
   output:
   tuple val(sample_name), path("${sample_name}.graph_mods")
@@ -132,7 +131,7 @@ process bamtags_to_BED {
   script:
   """
   samtools index ${bam_path}
-  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} -m ${missing} | pigz > ${sample_name}.mods.gz
+  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path} | sort ) \
     <(pigz -dc ${sample_name}.mods.gz | sort ) | \

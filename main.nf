@@ -33,8 +33,7 @@ workflow {
   }
 
   bamtags_to_BED(gafs_ch.combine(index_graph.out.graph_index),
-                         channel.value(params.code),
-                         channel.value(params.missing)).set{bam_methylation_ch}
+                         channel.value(params.code)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{

@@ -22,7 +22,7 @@ impl fmt::Display for Mod {
     }
 }
 
-fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, nuc_mod : &String, missing : i32) -> Option<Mod> {
+fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, nuc_mod : &String) -> Option<Mod> {
         match nr {
             Ok(record) => {
 
@@ -65,6 +65,8 @@ fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, 
                             Some(m) => { m },
                             None => { eprintln!("Could not find tag {}", base_mod); return None; }
                         };
+
+                        let missing = if mm_pieces[mod_start].contains("?") { -1 } else { 0 };
 
                         // how many other modifications did we skip to find mod_start
                         let prev_mods = mm_pieces.iter().take(mod_start).filter(|s| !re.is_match(s)).collect::<Vec<&&str>>().len();
@@ -128,7 +130,6 @@ fn main() {
     opts.optopt("b", "", "set input bam", "NAME");
     opts.optopt("B", "", "name of base modification", "NAME");
     opts.optopt("T", "", "modified nucleotide", "ACTG");
-    opts.optopt("m", "", "value for nucleotides with missing values", "-1,0");
     opts.optopt("t", "", "number of threads", "INT");
 
     let matches = match opts.parse(&args[1..]) {
@@ -144,9 +145,8 @@ fn main() {
     };
 
     let threads = matches.opt_str("t").and_then(|t| Some(t.parse::<u16>().unwrap_or(1))).unwrap();
-    let base_mod = matches.opt_str("B").unwrap_or("C+m.".to_string());
+    let base_mod = matches.opt_str("B").unwrap_or("C+m".to_string());
     let nuc_mod  = matches.opt_str("T").unwrap_or("C".to_string());
-    let missing  = matches.opt_str("m").expect("Values for missing nucleotides must be -1 (ignore) or 0 (unmodified).").parse::<i32>().unwrap();
 
     if !matches.opt_present("b") {
         eprintln!("No input provided.");
@@ -156,7 +156,7 @@ fn main() {
     let reader = bam::BamReader::from_path(matches.opt_str("b").unwrap(), threads).unwrap();
 
     for nr  in reader {
-        let read_mods = process_record(nr, &base_mod, &nuc_mod, missing);
+        let read_mods = process_record(nr, &base_mod, &nuc_mod);
         match read_mods {
             Some(m) => { writeln!(&mut out_file, "{}", m.to_string()); }
             None => {}
