@@ -21,7 +21,7 @@ workflow {
   bams_ch = channel.empty()
 
   if(params.lift) {
-    lift_nucleotides(graph_ch, index_graph.out.graph_index.map{it[2]})
+    lift_nucleotides(graph_ch, graph_index.map{it[2]})
   }
 
   if(params.bams) {
@@ -42,7 +42,7 @@ workflow {
       row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_BED(gafs_ch.combine(index_graph.out.graph_index),
+  bamtags_to_BED(gafs_ch.combine(graph_index),
                          channel.value(params.code)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
@@ -51,7 +51,7 @@ workflow {
     }.set{graph_methylation_ch}
   }
 
-  epigenome_to_CSV(bam_methylation_ch.concat(graph_methylation_ch).combine(index_graph.out.graph_index)).set{csv_ch}
+  epigenome_to_CSV(bam_methylation_ch.concat(graph_methylation_ch).combine(graph_index)).set{csv_ch}
   merge_CSV(csv_ch.groupTuple(by: 0)).set{merged_ch}
 
   if (params.vcfs) {
@@ -62,6 +62,6 @@ workflow {
 
   if (params.bed) {
     BED_to_graph(graph_ch.combine(Channel.fromPath(params.bed))).set{bed_ch}
-    annotate_BED(merged_ch.combine(bed_ch).combine(index_graph.out.graph_index.map{it[0]}))
+    annotate_BED(merged_ch.combine(bed_ch).combine(graph_index.map{it[0]}))
   }
 }
