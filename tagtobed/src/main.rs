@@ -66,7 +66,7 @@ fn process_record(nr : Result<bam::Record, std::io::Error>, base_mod : &String, 
                             None => { eprintln!("Could not find tag {}", base_mod); return None; }
                         };
 
-                        let missing = if mm_pieces[mod_start].contains("?") { -1 } else { 0 };
+                        let missing = if mm_pieces[mod_start].chars().last().unwrap() == '?' { -1 } else { 0 };
 
                         // how many other modifications did we skip to find mod_start
                         let prev_mods = mm_pieces.iter().take(mod_start).filter(|s| !re.is_match(s)).collect::<Vec<&&str>>().len();
