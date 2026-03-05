@@ -83,7 +83,8 @@ process index_graph {
   """
 }
 
-process align_graphaligner {
+process align_graphaligner 
+{
   publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
   input:
@@ -96,7 +97,7 @@ process align_graphaligner {
   """
   samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
   GraphAligner -t ${task.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
-  cut -f1-12,17 ${sample_name}.gaf | pigz > ${sample_name}.gaf.gz
+  cut -f1-12,17 ${sample_name}.gaf | sort | pigz > ${sample_name}.gaf.gz
   rm ${sample_name}.gaf
   """
 }
@@ -113,7 +114,7 @@ process align_minigraph {
   script:
   """
   samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  minigraph --vc -c -N 1 -t ${task.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | pigz > ${sample_name}.gaf.gz
+  minigraph --vc -c -N 1 -t ${task.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | sort | pigz > ${sample_name}.gaf.gz
   """
 }
 
