@@ -83,7 +83,7 @@ process index_graph {
   """
 }
 
-process align_graphaligner 
+process align_graphaligner
 {
   publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
 
@@ -131,7 +131,6 @@ process bamtags_to_BED {
 
   script:
   """
-  samtools index ${bam_path}
   tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 10% | pigz > ${sample_name}.mods.gz
 
   join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path} | sort -S 10% ) \
