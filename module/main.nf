@@ -128,7 +128,7 @@ process bamtags_to_BED {
 
   script:
   """
-  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 10% | pigz > ${sample_name}.mods.gz
+  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 1G | pigz > ${sample_name}.mods.gz
   """
 }
 
