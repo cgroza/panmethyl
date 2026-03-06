@@ -119,21 +119,31 @@ process align_minigraph {
 }
 
 process bamtags_to_BED {
-  publishDir "${params.out}/lifted/", mode: 'copy'
-
   input:
-  tuple val(sample_name), path(bam_path), path(gaf_path),
-    path(node_sizes), path(nodes_list), path(index)
+  tuple val(sample_name), path(bam_path)
   val(code)
+
+  output:
+  tuple val(sample_name), path("${sample_name}.mods.gz")
+
+  script:
+  """
+  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 10% | pigz > ${sample_name}.mods.gz
+  """
+}
+
+process lift_epigenome {
+  publishDir "${params.out}/lifted/", mode: 'copy'
+  input:
+  tuple val(sample_name), path(mods_path), path(gaf_path),
+    path(node_sizes), path(nodes_list), path(index)
 
   output:
   tuple val(sample_name), path("${sample_name}.graph_mods")
 
   script:
   """
-  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 10% | pigz > ${sample_name}.mods.gz
-
-  join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path} | sort -S 10% ) \
+  join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path}) \
     <(pigz -dc ${sample_name}.mods.gz) | \
     lift.py ${node_sizes} ${sample_name}.graph_mods
   """

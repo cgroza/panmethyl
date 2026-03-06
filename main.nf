@@ -1,4 +1,4 @@
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_nucleotides } from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
@@ -43,7 +43,9 @@ workflow {
       .map{row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_BED(gafs_ch.combine(graph_index),
+  bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}).set{bamtags_bed_ch}
+
+  lift_epigenome(bamtags_bed_ch.combine(graph_index),
                          channel.value(params.code)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
