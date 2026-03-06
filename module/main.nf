@@ -144,7 +144,7 @@ process lift_epigenome {
   script:
   """
   join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path}) \
-    <(pigz -dc ${sample_name}.mods.gz) | \
+    <(pigz -dc ${mods_path}) | \
     lift.py ${node_sizes} ${sample_name}.graph_mods
   """
 }
