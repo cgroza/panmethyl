@@ -43,10 +43,9 @@ workflow {
       .map{row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}).set{bamtags_bed_ch}
+  bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}, channel.value(params.code)).set{bamtags_bed_ch}
 
-  lift_epigenome(bamtags_bed_ch.combine(graph_index),
-                         channel.value(params.code)).set{bam_methylation_ch}
+  lift_epigenome(bamtags_bed_ch.combine(graph_index)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{
