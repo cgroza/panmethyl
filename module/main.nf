@@ -191,7 +191,6 @@ process lift_nucleotides {
 
   script:
   """
-  lift_nucleotides.py ${index} ${graph} > GFA_paths.bed
-  gzip GFA_paths.bed
+  lift_nucleotides.py ${index} ${graph} | gzip > GFA_paths.bed.gz
   """
 }
