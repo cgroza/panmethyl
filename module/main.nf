@@ -73,7 +73,7 @@ process index_graph {
   val(motif)
 
   output:
-  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("index.csv.gz"), emit: graph_index
+  tuple path("node_sizes.csv"), path("nodes_list.csv"), path("index.csv.gz")
 
   script:
   """

@@ -11,7 +11,7 @@ workflow {
        file(it / 'index.csv.gz', checkIfExists: true)]
     }.set{graph_index}
   } else {
-    index_graph(graph_ch, channel.value(params.motif)).out.graph_index.set{graph_index}
+    index_graph(graph_ch, channel.value(params.motif)).set{graph_index}
   }
 
   bam_methylation_ch = channel.empty()
