@@ -12,12 +12,12 @@ cpgs_index = gzip.open(sys.argv[3], "r")
 cpgs = dict()
 
 for line in cpgs_index:
-    node, pos, strand, pair = line.decode().split()
+    node, pos, strand, pair = line.decode().split('\t')
     pos = int(pos)
     if not node in cpgs:
-      cpgs[node] = dict()
+        cpgs[node] = dict()
 
-    if not pos in cpgs[node]:
+    if pos not in cpgs[node]:
         if strand == "+":
             cpgs[node][pos] = 0
         elif strand == "-":
@@ -30,7 +30,7 @@ with open(nodes_list_path, "r") as f:
 
 for node in nodes_list:
     # check if there is cpg on this node
-    if node in cpgs: #and len(mc[node]) > 0:
+    if node in cpgs:
         for pos in cpgs[node]:
             strand = "+"
             if pos < 0:

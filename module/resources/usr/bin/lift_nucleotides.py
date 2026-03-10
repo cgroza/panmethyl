@@ -6,7 +6,7 @@ nuc_index = dict()
 
 with gzip.open(sys.argv[1], 'rt', encoding = 'ascii') as cpgs_file:
     for line in cpgs_file:
-        node, offset, strand, nucset = line.rstrip().split()
+        node, offset, strand, nucset = line.rstrip().split('\t')
         if int(node) not in nuc_index:
             nuc_index[int(node)] = []
         nuc_index[int(node)].append((int(offset), strand, nucset))
