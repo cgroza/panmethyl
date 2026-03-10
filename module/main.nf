@@ -97,7 +97,7 @@ process align_graphaligner
   """
   samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
   GraphAligner -t ${task.cpus} -x vg -a ${sample_name}.gaf -g ${graph_path} -f ${sample_name}.fa.gz
-  cut -f1-12,17 ${sample_name}.gaf | sort | pigz > ${sample_name}.gaf.gz
+  cut -f1-12,17 ${sample_name}.gaf | sort -k1,1 | pigz > ${sample_name}.gaf.gz
   rm ${sample_name}.gaf
   """
 }
@@ -114,7 +114,7 @@ process align_minigraph {
   script:
   """
   samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  minigraph --vc -c -N 1 -t ${task.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | sort | pigz > ${sample_name}.gaf.gz
+  minigraph --vc -c -N 1 -t ${task.cpus} ${graph_path} ${sample_name}.fa.gz | cut -f1-12,19 | sort -k1,1 | pigz > ${sample_name}.gaf.gz
   """
 }
 
@@ -128,7 +128,7 @@ process bamtags_to_BED {
 
   script:
   """
-  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 1G | pigz > ${sample_name}.mods.gz
+  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 1G -k1,1 | pigz > ${sample_name}.mods.gz
   """
 }
 
