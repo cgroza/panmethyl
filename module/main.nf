@@ -160,7 +160,7 @@ process epigenome_to_CSV {
 
   script:
   """
-  nodes_levels.py ${nodes_list} ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv.gz
+  nodes_levels.py ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv.gz
   """
 }
 
