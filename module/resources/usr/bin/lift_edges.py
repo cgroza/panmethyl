@@ -1,5 +1,5 @@
+#!/opt/pypy3/bin/pypy3
 import sys
-
 
 flip = {'+' : '-', '-' : '+'}
 def complement(edge):

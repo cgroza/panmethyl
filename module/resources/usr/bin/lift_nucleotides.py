@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/pypy3/bin/pypy3
 import sys
 import gzip
 
