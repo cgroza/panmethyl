@@ -1,8 +1,14 @@
 #!/opt/pypy3/bin/pypy3
 import sys
 import gzip
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from queue import Queue
 
 nuc_index = dict()
+
+
+num_workers = int(sys.argv[3])
 
 with gzip.open(sys.argv[1], 'rt', encoding = 'ascii') as cpgs_file:
     for line in cpgs_file:
@@ -28,16 +34,15 @@ for line in gfa:
 
 gfa.seek(0)
 
-for line in gfa:
+def process_line(line, nuc_index, node_lengths, output_queue):
     if line[0] != "P":
-        continue
+        return
     _, p_name, hap, _ = line.rstrip().split()
     hap_name = p_name
     hap_start = 0
 
     hap_seq = hap.split(',')
 
-    # unless we have clipped contig
     if '[' in p_name:
         hap_name = p_name.split('[')[0]
         hap_start = int(p_name.split('[')[1].split('-')[0])
@@ -50,12 +55,36 @@ for line in gfa:
         if node_name in nuc_index:
             for cpg in nuc_index[node_name]:
                 offset = cpg[0]
-                # node lies reversed along assembly
                 if strand == '-':
-                    # 0 based coordinates, flip offset
                     offset = node_lengths[node_name] - offset - 1
-                print(hap_name, hap_start + i + offset, hap_start + i + offset, str(node_name) + ',' + str(cpg[0]) + ',' + cpg[1], cpg[2], sep = '\t')
-
+                output_queue.put((
+                    hap_name,
+                    hap_start + i + offset,
+                    hap_start + i + offset,
+                    f"{node_name},{cpg[0]},{cpg[1]}",
+                    cpg[2]
+                ))
         i += node_lengths[node_name]
 
+def output_worker(output_queue):
+    while True:
+        item = output_queue.get()
+        if item is None:
+            break
+        print(*item, sep='\t')
+        output_queue.task_done()
+
+output_queue = Queue()
+
+# Start output thread
+output_thread = threading.Thread(target=output_worker, args=(output_queue,))
+output_thread.start()
+
+with ThreadPoolExecutor(max_workers=num_workers) as executor:
+    for line in gfa:
+        executor.submit(process_line, line, nuc_index, node_lengths, output_queue)
+
+# Signal output thread to finish
+output_queue.put(None)
+output_thread.join()
 gfa.close()

@@ -1,5 +1,8 @@
 #!/opt/pypy3/bin/pypy3
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from queue import Queue
 
 flip = {'+' : '-', '-' : '+'}
 def complement(edge):
@@ -9,6 +12,8 @@ edge_index = set()
 
 strands = {'>' : '+', '<' : '-'}
 strands_ = {'+' : '>', '-' : '<'}
+
+num_workers = int(sys.argv[3])
 
 with open(sys.argv[1], 'r') as cpgs_file:
     for line in cpgs_file:
@@ -40,14 +45,14 @@ for line in gfa:
 
 gfa.seek(0)
 
-for line in gfa:
+def process_edge_line(line, node_lengths, edge_index, strands_, complement, output_queue):
     if line[0] != "P":
-        continue
+        return
     _, p_name, hap, _ = line.rstrip().split()
     hap_name = p_name
     hap_start = 0
 
-    hap_seq =  hap.split(',')
+    hap_seq = hap.split(',')
     hap_edges = []
     for i in range(0, len(hap_seq) - 1):
         lstrand = hap_seq[i][-1]
@@ -57,10 +62,8 @@ for line in gfa:
         rnode = int(hap_seq[i+1][:-1])
 
         edge = (lstrand, lnode, rstrand, rnode)
-
         hap_edges.append(edge)
 
-    # unless we have clipped contig
     if '[' in p_name:
         hap_name = p_name.split('[')[0]
         hap_start = int(p_name.split('[')[1].split('-')[0])
@@ -74,8 +77,40 @@ for line in gfa:
             edge_name = strands_[cedge[0]] + str(cedge[1]) + ' ' + strands_[cedge[2]] + str(cedge[3])
 
         if edge in edge_index or cedge in edge_index:
-            print(hap_name, hap_start + i + node_lengths[edge[1]] - 1, hap_start + i + node_lengths[edge[1]] + 1 , edge_name, sep = '\t')
-        # move the position past the edge
+            output_queue.put((
+                hap_name,
+                hap_start + i + node_lengths[edge[1]] - 1,
+                hap_start + i + node_lengths[edge[1]] + 1,
+                edge_name
+            ))
         i += node_lengths[edge[1]]
+
+def output_worker(output_queue):
+    while True:
+        item = output_queue.get()
+        if item is None:
+            break
+        print(*item, sep='\t')
+        output_queue.task_done()
+
+output_queue = Queue()
+
+output_thread = threading.Thread(target=output_worker, args=(output_queue,))
+output_thread.start()
+
+with ThreadPoolExecutor(max_workers=num_workers) as executor:
+    for line in gfa:
+        executor.submit(
+            process_edge_line,
+            line,
+            node_lengths,
+            edge_index,
+            strands_,
+            complement,
+            output_queue
+        )
+
+output_queue.put(None)
+output_thread.join()
 
 gfa.close()
