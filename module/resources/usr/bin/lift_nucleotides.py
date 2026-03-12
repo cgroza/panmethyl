@@ -56,7 +56,7 @@ for line in gfa:
                 if strand == '-':
                     # 0 based coordinates, flip offset
                     offset = node_lengths[node_name] - offset - 1
-                print(hap_name, hap_start + i + offset, hap_start + i + offset + 2, str(node_name) + ',' + str(cpg[0]) + ',' + cpg[1], cpg[2], sep = '\t')
+                print(hap_name, hap_start + i + offset, hap_start + i + offset + 2, cpg[2], sep = '\t')
 
         i += node_lengths[node_name]
 
