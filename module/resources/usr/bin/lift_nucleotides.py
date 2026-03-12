@@ -15,6 +15,8 @@ with gzip.open(sys.argv[1], 'rt', encoding = 'ascii') as cpgs_file:
         node, offset, strand, nucset = line.rstrip().split('\t')
         if ' ' in nucset:
             continue
+        if strand == '-':
+            continue
         if int(node) not in nuc_index:
             nuc_index[int(node)] = []
         nuc_index[int(node)].append((int(offset), strand, nucset))
@@ -60,7 +62,7 @@ def process_line(line, nuc_index, node_lengths, output_queue):
                 output_queue.put((
                     hap_name,
                     hap_start + i + offset,
-                    hap_start + i + offset,
+                    hap_start + i + offset + 2,
                     f"{node_name},{cpg[0]},{cpg[1]}",
                     cpg[2]
                 ))
