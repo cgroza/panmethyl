@@ -194,6 +194,6 @@ process lift_nucleotides {
   lift_nucleotides.py ${index} ${graph} ${task.cpus} | pigz > GFA_node_paths.bed.gz
   lift_edges.py ${index} ${graph} ${task.cpus} | pigz > GFA_edge_paths.bed.gz
 
-  cat GFA_node_paths.bed GFA_edge_paths.bed.gz> GFA_paths.bed.gz
+  cat GFA_node_paths.bed.gz GFA_edge_paths.bed.gz> GFA_paths.bed.gz
   """
 }
