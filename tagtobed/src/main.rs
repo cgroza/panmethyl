@@ -1,4 +1,5 @@
 extern crate bam;
+use rayon::prelude::*;
 use getopts::Options;
 use std::io::Write;
 use std::env;
@@ -6,6 +7,7 @@ use std::process;
 use std::iter::zip;
 use regex::Regex;
 use std::fmt;
+use std::sync::mpsc::sync_channel;
 
 struct Mod {
     name : String,
@@ -137,12 +139,6 @@ fn main() {
         Err(f) => { panic!("{}", f.to_string()) }
     };
 
-    // write to stdout if no output provided
-    let mut out_file : Box<dyn Write> = if !matches.opt_present("o") {
-        Box::new(std::io::stdout())
-    } else {
-        Box::new(std::fs::File::create(matches.opt_str("o").unwrap()).unwrap())
-    };
 
     let threads = matches.opt_str("t").and_then(|t| Some(t.parse::<u16>().unwrap_or(1))).unwrap();
     let base_mod = matches.opt_str("B").unwrap_or("C+m".to_string());
@@ -155,11 +151,28 @@ fn main() {
 
     let reader = bam::BamReader::from_path(matches.opt_str("b").unwrap(), threads).unwrap();
 
-    for nr  in reader {
-        let read_mods = process_record(nr, &base_mod, &nuc_mod);
-        match read_mods {
-            Some(m) => { writeln!(&mut out_file, "{}", m.to_string()); }
-            None => {}
+    let (tx, rx) = sync_channel::<Mod>(10000);
+
+    std::thread::spawn(move || {
+        // write to stdout if no output provided
+        let mut out_file : Box<dyn Write> = if !matches.opt_present("o") {
+            Box::new(std::io::stdout())
+        } else {
+            Box::new(std::fs::File::create(matches.opt_str("o").unwrap()).unwrap())
+        };
+        for m in rx {
+            writeln!(&mut out_file, "{}", m.to_string());
         }
-    }
+    });
+
+    reader
+        .par_bridge()
+        .for_each(|nr| {
+            let tx_ = tx.clone();
+            match process_record(nr, &base_mod, &nuc_mod) {
+                Some(m) => { tx_.send(m); }
+                None => {}
+            }
+        });
+    drop(tx);
 }
