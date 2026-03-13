@@ -27,7 +27,8 @@ From: ubuntu:22.04
     apt-get -qq -y install \
     libssl-dev \
     libxml2-dev \
-    libcurl4-openssl-dev \
+    libcurl4-openssl-dev 
+    
     curl libgomp1
 
 
@@ -37,6 +38,13 @@ From: ubuntu:22.04
     cp target/release/tagtobed /usr/local/bin
     cd ${HOME}
     rm -rf panmethyl
+
+    git clone https://github.com/cgroza/gfa-ranges
+    cd gfa-ranges
+    cargo build --release 
+    cp target/release/lift_offsets target/release/lift_edges /usr/local/bin
+    cd ${HOME}
+    rm -rf gfa-ranges
 
     git clone --recursive https://github.com/samtools/htslib.git
     cd htslib
