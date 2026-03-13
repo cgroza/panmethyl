@@ -19,6 +19,7 @@ workflow {
 
   gafs_ch = channel.empty()
   bams_ch = channel.empty()
+  bamtags_bed_ch = channel.empty()
 
   if(params.lift) {
     lift_nucleotides(graph_ch, graph_index.map{it[2]})
@@ -43,7 +44,14 @@ workflow {
       .map{row -> [row.sample, file(row.bam, checkIfExists: true), file(row.gaf, checkIfExists: true)]}.set{gafs_ch}
   }
 
-  bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}, channel.value(params.code)).set{bamtags_bed_ch}
+  if(params.mods) {
+    Channel.fromPath(params.mods).splitCsv(header : true)
+      .filter{row -> !row.sample.startsWith("#")}
+      .map{row -> [row.sample, file(row.mods, checkIfExists: true)]}.set{bamtags_bed_ch}
+
+  } else {
+    bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}, channel.value(params.code)).set{bamtags_bed_ch}
+  }
 
   lift_epigenome(bamtags_bed_ch.combine(gafs_ch.map{[it[0], it[2]]}, by: 0).combine(graph_index)).set{bam_methylation_ch}
 
