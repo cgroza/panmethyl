@@ -20,7 +20,7 @@ From: ubuntu:22.04
     apt-get -qq install --assume-yes software-properties-common
     add-apt-repository universe
     apt-get -qq update
-    apt-get -qq install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf rustc cargo
+    apt-get -qq install --assume-yes pigz python3-pip git build-essential zlib1g-dev libjellyfish-2.0-dev pkg-config cmake r-base-core gawk autoconf
 
     pip3 install polars vcfpy
 
@@ -30,6 +30,10 @@ From: ubuntu:22.04
     libcurl4-openssl-dev \
     curl libgomp1
 
+    export RUSTUP_HOME=/usr/local/rustup
+    export CARGO_HOME=/usr/local/cargo
+    export PATH=/usr/local/cargo/bin:$PATH
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
     git clone https://github.com/cgroza/panmethyl
     cd panmethyl/tagtobed
@@ -107,7 +111,7 @@ From: ubuntu:22.04
     rm -rf ~/miniconda
 
 
-    apt-get -qq remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget rustc cargo
+    apt-get -qq remove --assume-yes git software-properties-common cmake make pkg-config build-essential autoconf wget cargo
     apt-get -qq autoremove --assume-yes
     apt-get -qq clean --assume-yes
 
