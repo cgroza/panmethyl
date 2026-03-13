@@ -3,6 +3,7 @@ name = "tagtobed"
 version = "0.1.0"
 edition = "2021"
 
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -10,3 +11,18 @@ bam = "0.1.4"
 getopts = "0.2"
 rayon = "1.11.0"
 regex = "1.11.1"
+flate2 = "1.0"
+crossbeam = "0.8"
+
+
+[[bin]]
+name = "tagtobed"
+path = "src/tagtobed.rs"
+
+[[bin]]
+name = "lift_edges"
+path = "src/lift_edges.rs"
+
+[[bin]]
+name = "lift_offsets"
+path = "src/lift_offsets.rs"
