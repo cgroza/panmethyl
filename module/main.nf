@@ -118,6 +118,22 @@ process align_minigraph {
   """
 }
 
+process align_giraffe {
+  publishDir "${params.out}/gafs/", mode: 'copy', pattern: '*.gaf.gz'
+
+  input:
+  tuple val(sample_name), path(bam_path), val(preset), path(index_dir), val(index_basename)
+
+  output:
+  tuple val(sample_name), path(bam_path), path("${sample_name}.gaf.gz")
+
+  script:
+  """
+  samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
+  vg giraffe --parameter-preset ${preset} -o gaf -t ${task.cpus} --index-basename ${index_dir}/${index_basename} -f ${sample_name}.fa.gz | subset_gaf.py | pigz > ${sample_name}.gaf.gz
+  """
+}
+
 process bamtags_to_BED {
   input:
   tuple val(sample_name), path(bam_path)

@@ -1,4 +1,4 @@
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; align_giraffe; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
@@ -27,7 +27,7 @@ workflow {
 
   if(params.bams) {
     Channel.fromPath(params.bams).splitCsv(header : true).map{
-      row -> [row.sample, file(row.path, checkIfExists: true)]
+      row -> [row.sample, file(row.path, checkIfExists: true), row.preset]
     }.set{bams_ch}
 
     if(params.aligner == "minigraph") {
@@ -35,6 +35,9 @@ workflow {
     }
     else if(params.aligner == "GraphAligner") {
       align_graphaligner(bams_ch.combine(graph_ch)).set{gafs_ch}
+    }
+    else if(params.align_graphaligner == "giraffe") {
+      align_giraffe(bams_ch.combine(Channel.fromPath(params.giraffe_index)).combine(channel.value(params.giraffe_index_prefix)))
     }
   }
 
