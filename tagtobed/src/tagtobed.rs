@@ -18,7 +18,7 @@ struct Mod {
 impl fmt::Display for Mod {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Use write! to format the output into the formatter f
-        write!(f, "{name}\t{bases}\n",
+        write!(f, "{name}\t{bases}",
                      name = self.name,
                      bases = zip(&self.bases, &self.levels).map(|b| b.0.to_string() + ":" + &b.1.to_string()).collect::<Vec<String>>().join(","))
     }
