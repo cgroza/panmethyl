@@ -144,7 +144,7 @@ process bamtags_to_BED {
 
   script:
   """
-  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort -S 1G -k1b,1 | pigz > ${sample_name}.mods.gz
+  tagtobed -t ${task.cpus}  -T ${code[0]} -b ${bam_path} -B ${code} | sort --compress-program=gzip -S 1G -k1b,1 | pigz > ${sample_name}.mods.gz
   """
 }
 
