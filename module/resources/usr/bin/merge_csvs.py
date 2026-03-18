@@ -6,7 +6,7 @@ import gzip
 schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'depth':polars.Float32, 'score':polars.Float32}
 columns = ['node', 'pos', 'strand', 'depth', 'score']
 
-chunk = polars.read_csv(sys.argv[2], separator=' ', has_header=False,
+chunk = polars.read_csv(sys.argv[2], separator='\t', has_header=False,
                                new_columns=columns,
                                schema = schema)
 
@@ -23,4 +23,4 @@ if len(sys.argv) > 3:
                     .select(columns)
 
 with gzip.open(sys.argv[1], 'wb') as csv:
-    chunk.sort('node', 'pos', 'strand').write_csv(csv, separator=' ')
+    chunk.sort('node', 'pos', 'strand').write_csv(csv, separator='\t')
