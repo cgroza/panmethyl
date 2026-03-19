@@ -1,4 +1,4 @@
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; align_giraffe; bamtags_to_BED; epigenome_to_CSV; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
+include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; align_giraffe; bamtags_to_BED; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
 
 workflow {
   Channel.fromPath(params.graph).set{graph_ch}
