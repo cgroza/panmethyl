@@ -1,15 +1,28 @@
 #!/opt/pypy3/bin/pypy3
-
-import pickle
 import sys
 import gzip
 
-pickle_mc_in = sys.argv[1]
-mc = pickle.load(open(pickle_mc_in, "rb"))
-cpgs_index = gzip.open(sys.argv[2], "r")
+mc_csv = gzip.open(open(sys.argv[1], "rt", encoding='ascii'))
+
+mc = dict()
+
+for line in mc_csv:
+    node, pos, depth, total_score = line.decode().rstrip().split('\t')
+    pos = abs(int(pos))
+    depth = int(depth)
+    total_score = float(total_score)
+
+    if depth == 0:
+        continue
+    if node not in mc:
+        mc[node] = {}
+
+    mc[node][pos] = (depth, total_score/depth)
+
+cpgs_index = gzip.open(sys.argv[2], "rt", encoding='ascii')
 
 for line in cpgs_index:
-    node, pos, strand, pair = line.decode().rstrip().split('\t')
+    node, pos, strand, pair = line.rstrip().split('\t')
 
     pos = int(pos)
 
