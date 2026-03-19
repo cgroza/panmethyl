@@ -32,4 +32,4 @@ for line in cpgs_index:
     if node in mc and pos in mc[node]:
         depth = mc[node][pos][0]
         score = mc[node][pos][1]
-    print(node, abs(pos), strand, depth, score, pair, sep='\t')
+    print(node, pos, strand, depth, score, pair, sep='\t')
