@@ -64,8 +64,7 @@ workflow {
     }.set{graph_methylation_ch}
   }
 
-  epigenome_to_CSV(bam_methylation_ch.concat(graph_methylation_ch).combine(graph_index)).set{csv_ch}
-  merge_CSV(csv_ch.groupTuple(by: 0)).set{merged_ch}
+  merge_CSV(bam_methylation_ch.groupTuple(by: 0)).set{merged_ch}
 
   if (params.vcfs) {
     Channel.fromPath(params.vcfs).splitCsv(header : true).map{

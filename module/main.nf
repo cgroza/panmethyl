@@ -130,7 +130,7 @@ process align_giraffe {
   script:
   """
   samtools fasta --threads ${task.cpus} ${bam_path} | pigz  > ${sample_name}.fa.gz
-  vg giraffe --parameter-preset ${preset} -o gaf -t ${task.cpus} --index-basename ${index_dir}/${index_basename} -f ${sample_name}.fa.gz | subset_gaf.py | pigz > ${sample_name}.gaf.gz
+  vg giraffe --parameter-preset ${preset} -o gaf -t ${task.cpus} --index-basename ${index_dir}/${index_basename} -f ${sample_name}.fa.gz | subset_gaf.py | sort -k1b,1 | pigz > ${sample_name}.gaf.gz
   """
 }
 
@@ -155,28 +155,14 @@ process lift_epigenome {
     path(node_sizes), path(nodes_list), path(index)
 
   output:
-  tuple val(sample_name), path("${sample_name}.graph_mods")
+  tuple val(sample_name), path("${sample_name}.csv.gz")
 
   script:
   """
   join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path}) \
     <(pigz -dc ${mods_path}) | \
-    lift.py ${node_sizes} ${sample_name}.graph_mods
-  """
-}
-
-process epigenome_to_CSV {
-  publishDir "${params.out}/lifted/", mode: 'copy'
-
-  input:
-  tuple val(sample_name), path(graph_mods), path(node_sizes), path(nodes_list), path(index)
-
-  output:
-  tuple val(sample_name), path("${sample_name}.csv.gz")
-
-  script:
-  """
-  nodes_levels.py ${graph_mods} ${index} | sort -t' ' -k1,1 -k2,2n | pigz > ${sample_name}.csv.gz
+    lift_mods ${node_sizes} ${sample_name}.csv
+  sort -t \$'\\t' -k1,1 -k2,2n ${sample_name}.csv | pigz > ${sample_name}.csv.gz
   """
 }
 
