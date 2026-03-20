@@ -201,7 +201,7 @@ fn main() -> io::Result<()> {
     }
 
     let mut wtr = Writer::from_path(csv_out)?;
-    wtr.write_record(&["node", "position", "count", "score_sum"])?;
+    // wtr.write_record(&["node", "position", "count", "score_sum"])?;
     for (node, pos_map) in node_bmod_count.iter() {
         for (pos, (count, score_sum)) in pos_map.iter() {
             wtr.write_record(&[
