@@ -14,7 +14,6 @@ workflow {
     index_graph(graph_ch, channel.value(params.motif)).set{graph_index}
   }
 
-  bam_methylation_ch = channel.empty()
   graph_methylation_ch = channel.empty()
 
   gafs_ch = channel.empty()
@@ -56,15 +55,16 @@ workflow {
     bamtags_to_BED(gafs_ch.map{[it[0], it[1]]}, channel.value(params.code)).set{bamtags_bed_ch}
   }
 
-  lift_epigenome(bamtags_bed_ch.combine(gafs_ch.map{[it[0], it[2]]}, by: 0).combine(graph_index)).set{bam_methylation_ch}
 
   if(params.graph_mods) {
     Channel.fromPath(params.graph_mods).splitCsv(header : true).map{
       row -> [row.sample, file(row.path, checkIfExists: true)]
     }.set{graph_methylation_ch}
+  } else {
+    lift_epigenome(bamtags_bed_ch.combine(gafs_ch.map{[it[0], it[2]]}, by: 0).combine(graph_index)).set{graph_methylation_ch}
   }
 
-  merge_CSV(bam_methylation_ch.groupTuple(by: 0).combine(graph_index)).set{merged_ch}
+  merge_CSV(graph_methylation_ch.groupTuple(by: 0).combine(graph_index)).set{merged_ch}
 
   if (params.vcfs) {
     Channel.fromPath(params.vcfs).splitCsv(header : true).map{
