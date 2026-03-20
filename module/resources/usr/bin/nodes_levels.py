@@ -7,7 +7,7 @@ mc_csv = gzip.open(sys.argv[1], "rt", encoding='ascii')
 mc = dict()
 
 for line in mc_csv:
-    node, pos, depth, total_score = line.rstrip().split('\t')
+    node, pos, depth, total_score = line.rstrip().split(',')
     pos = abs(int(pos))
     depth = int(depth)
     total_score = float(total_score)
