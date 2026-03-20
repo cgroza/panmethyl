@@ -64,7 +64,7 @@ workflow {
     }.set{graph_methylation_ch}
   }
 
-  merge_CSV(bam_methylation_ch.groupTuple(by: 0)).set{merged_ch}
+  merge_CSV(bam_methylation_ch.groupTuple(by: 0).combine(graph_index)).set{merged_ch}
 
   if (params.vcfs) {
     Channel.fromPath(params.vcfs).splitCsv(header : true).map{

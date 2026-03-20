@@ -162,7 +162,7 @@ process lift_epigenome {
   join -t \$'\\t' -1 1 -2 1 <(pigz -dc ${gaf_path}) \
     <(pigz -dc ${mods_path}) | \
     lift_mods ${node_sizes} ${sample_name}.csv
-  sort -t \$'\\t' -k1,1 -k2,2n ${sample_name}.csv | pigz > ${sample_name}.csv.gz
+  sort -t, -k1,1 -k2,2n ${sample_name}.csv | pigz > ${sample_name}.csv.gz
   """
 }
 
@@ -170,14 +170,20 @@ process merge_CSV {
   publishDir "${params.out}/levels/", mode: 'copy'
 
   input:
-  tuple val(sample_name), path("graph_levels*.csv.gz")
+  tuple val(sample_name), path("graph_levels*.csv.gz"),
+    path(node_sizes), path(nodes_list), path(index)
 
   output:
   tuple val(sample_name), path("${sample_name}.csv.gz")
 
   script:
   """
-  merge_csvs.py ${sample_name}.csv.gz graph_levels*.csv.gz
+  for f in graph_levels*.csv.gz
+  do
+  nodes_levels.py \${f} ${index} | gzip > index_\$(basename \${f})
+  done
+
+  merge_csvs.py ${sample_name}.csv.gz index_graph_levels*.csv.gz
   """
 }
 
