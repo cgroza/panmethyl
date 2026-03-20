@@ -23,8 +23,10 @@ cpgs_index = gzip.open(sys.argv[2], "rt", encoding='ascii')
 
 for line in cpgs_index:
     node, pos, strand, pair = line.rstrip().split('\t')
-
-    pos = int(pos)
+    try:
+        pos = int(pos)
+    except:
+        continue
 
     depth = 0
     score = 0
