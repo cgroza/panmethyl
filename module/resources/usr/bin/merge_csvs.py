@@ -3,8 +3,8 @@ import polars
 import sys
 import gzip
 
-schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'depth':polars.Float32, 'score':polars.Float32}
-columns = ['node', 'pos', 'strand', 'depth', 'score']
+schema = {'node':polars.String, 'pos':polars.Int64, 'strand':polars.String, 'depth':polars.Float32, 'score':polars.Float32, 'graph' : polars.String}
+columns = ['node', 'pos', 'strand', 'depth', 'score', 'graph']
 
 chunk = polars.read_csv(sys.argv[2], separator='\t', has_header=False,
                                new_columns=columns,
@@ -12,7 +12,7 @@ chunk = polars.read_csv(sys.argv[2], separator='\t', has_header=False,
 
 if len(sys.argv) > 3:
     for f in sys.argv[3:]:
-        chunk = polars.concat([chunk, polars.read_csv(f, separator=' ', has_header=False,
+        chunk = polars.concat([chunk, polars.read_csv(f, separator='\t', has_header=False,
                                                     new_columns=columns,
                                                     schema=schema)],
                               how = 'vertical') \
@@ -23,4 +23,4 @@ if len(sys.argv) > 3:
                     .select(columns)
 
 with gzip.open(sys.argv[1], 'wb') as csv:
-    chunk.sort('node', 'pos', 'strand').write_csv(csv, separator='\t')
+    chunk.sort('node', 'pos', 'strand', 'graph').write_csv(csv, separator='\t')
