@@ -8,7 +8,10 @@ mc = dict()
 
 for line in mc_csv:
     node, pos, depth, total_score = line.rstrip().split(',')
-    pos = abs(int(pos))
+    try:
+        pos = abs(int(pos))
+    except:
+        continue
     depth = int(depth)
     total_score = float(total_score)
 
