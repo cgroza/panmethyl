@@ -23,4 +23,4 @@ if len(sys.argv) > 3:
                     .select(columns)
 
 with gzip.open(sys.argv[1], 'wb') as csv:
-    chunk.sort('node', 'pos', 'strand', 'graph').write_csv(csv, separator='\t')
+    chunk.sort('graph', 'node', 'pos', 'strand').write_csv(csv, separator='\t')
