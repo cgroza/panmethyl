@@ -102,6 +102,12 @@ fn main() -> io::Result<()> {
         if fields.len() < 14 {
             continue;
         }
+
+        let mapq = fields[11].parse::<usize>().unwrap();
+        if mapq < 1 {
+            continue
+        }
+
         let bmods: Vec<&str> = fields.last().unwrap().split(',').collect();
         let qlen = fields[1].parse::<usize>().unwrap();
         let qstart = fields[2].parse::<usize>().unwrap();
