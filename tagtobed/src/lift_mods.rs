@@ -50,11 +50,12 @@ fn increment_count(
     d: &mut HashMap<String, HashMap<i32, (i32, i32)>>,
     node: &str,
     pos: i32,
-    score: i32,
+    ml_score: i32,
 ) {
-    if score == -1 {
+    if ml_score == -1 {
         return;
     }
+    let score = if ml_score < 128 { 0 } else { 1 };
     let entry = d.entry(node.to_string()).or_insert_with(HashMap::new);
     entry.entry(pos).and_modify(|v| {
         v.0 += 1;
