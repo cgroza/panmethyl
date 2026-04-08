@@ -28,8 +28,9 @@ node_mods = {}
 print("CHROM", "POS", "ID", "allele", "path", "node_positions",
       "strands", "depths", "levels", sep='\t')
 
+mods.readline()
 for line in mods:
-    node, pos, strand, depth, level = line.decode().split()
+    node, pos, strand, depth, level, cpgid = line.decode().split()
     if float(depth) <= 0:
         continue
     if node not in node_mods:
