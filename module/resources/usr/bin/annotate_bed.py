@@ -30,7 +30,7 @@ with open(node_sizes_path) as node_sizes_file:
 node_mods = {}
 
 for line in mods:
-    node, pos, strand, depth, level = line.decode().split()
+    node, pos, strand, depth, level, cpgid = line.decode().split('\t')
     if node not in node_mods:
         node_mods[node] = []
     # skip nucleotides without coverage
