@@ -57,7 +57,7 @@ process merge_BED {
 
   for b in ${beds}
   do
-  awk 'NR==1' \${b} | cut -f7 > \$b.col
+    cut -f7 \${b} > \$b.col
   done
 
   paste body *.col > merged_epiannoation.bed
