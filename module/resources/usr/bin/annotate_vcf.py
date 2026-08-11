@@ -51,6 +51,9 @@ for record in reader:
     paths = {}
     genotype = record.calls[0].gt_alleles
 
+    if genotype is None:
+        continue
+
     for g in genotype:
         if g is not None:
             paths[g] = drop_source_sink(parse_path_re(record.INFO['AT'][g]))
