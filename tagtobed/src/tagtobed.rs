@@ -153,7 +153,7 @@ fn main() {
 
     let (tx, rx) = sync_channel::<Mod>(10000);
 
-    std::thread::spawn(move || {
+    let writer = std::thread::spawn(move || {
         // write to stdout if no output provided
         let mut out_file : Box<dyn Write> = if !matches.opt_present("o") {
             Box::new(std::io::stdout())
@@ -175,4 +175,6 @@ fn main() {
             }
         });
     drop(tx);
+    // returning from main ends the process, so wait for the writer to drain the channel
+    writer.join().unwrap();
 }
