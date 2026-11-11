@@ -1,9 +1,11 @@
+use flate2::read::GzDecoder;
+use rayon::prelude::*;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
-use std::collections::HashMap;
-use flate2::read::GzDecoder;
 use std::sync::mpsc::sync_channel;
-use rayon::prelude::*;
+
+mod gfa;
 
 fn main() {
     let cpgs_file = std::env::args().nth(1).expect("Missing cpgs file");
@@ -17,16 +19,24 @@ fn main() {
     for line in reader.lines() {
         let line = line.unwrap();
         let fields: Vec<&str> = line.trim().split('\t').collect();
-        if fields.len() != 4 { continue; }
+        if fields.len() != 4 {
+            continue;
+        }
         let node = fields[0].parse::<usize>().unwrap();
         let offset = fields[1].parse::<usize>().unwrap();
         let strand = fields[2];
         let nucset = fields[3];
-        if nucset.contains(' ') { continue; }
-        if strand == "-" { continue; }
-        nuc_index.entry(node)
-            .or_insert_with(Vec::new)
-            .push((offset, strand.to_string(), nucset.to_string()));
+        if nucset.contains(' ') {
+            continue;
+        }
+        if strand == "-" {
+            continue;
+        }
+        nuc_index.entry(node).or_insert_with(Vec::new).push((
+            offset,
+            strand.to_string(),
+            nucset.to_string(),
+        ));
     }
 
     // Build node_lengths from GFA
@@ -38,14 +48,16 @@ fn main() {
         let line = line.unwrap();
         if line.starts_with('S') {
             let fields: Vec<&str> = line.trim().split_whitespace().collect();
-            if fields.len() < 3 { continue; }
+            if fields.len() < 3 {
+                continue;
+            }
             let node_id = fields[1].parse::<usize>().unwrap();
             let node_seq = fields[2];
             node_lengths.insert(node_id, node_seq.len());
         }
     }
 
-    // Rewind GFA file and process P lines in parallel
+    // Rewind GFA file and process paths and walks in parallel
     gfa.seek(SeekFrom::Start(0)).unwrap();
     let reader = BufReader::new(gfa);
 
@@ -54,39 +66,23 @@ fn main() {
 
     let (tx, rx) = sync_channel::<String>(100000);
 
-    std::thread::spawn(move || {
+    let writer = std::thread::spawn(move || {
         for line in rx {
             println!("{}", line);
         }
     });
 
-    reader.lines()
+    reader
+        .lines()
         .par_bridge()
-        .filter_map(Result::ok)
-        .filter(|l| l.starts_with('P'))
+        .map(Result::unwrap)
         .for_each(|line| {
+            let Some(path) = gfa::parse_path(&line).expect("Invalid GFA path or walk") else {
+                return;
+            };
             let tx_ = tx.clone();
-            let fields: Vec<&str> = line.trim().split_whitespace().collect();
-            if fields.len() < 4 { return; }
-            let p_name = fields[1];
-            let hap = fields[2];
-            let mut hap_name = p_name.to_string();
-            let mut hap_start = 0usize;
-
-            let hap_seq: Vec<&str> = hap.split(',').collect();
-
-            if p_name.contains('[') {
-                let parts: Vec<&str> = p_name.split('[').collect();
-                hap_name = parts[0].to_string();
-                let start = parts[1].split('-').next().unwrap();
-                hap_start = start.parse::<usize>().unwrap();
-            }
-
             let mut i = 0usize;
-            for node in hap_seq {
-                let node_name = node[..node.len()-1].parse::<usize>().unwrap();
-                let strand = &node[node.len()-1..];
-
+            for (node_name, strand) in path.nodes {
                 if let Some(cpgs) = nuc_index.get(&node_name) {
                     for cpg in cpgs {
                         let mut offset = cpg.0;
@@ -95,15 +91,17 @@ fn main() {
                         }
                         tx_.send(format!(
                             "{}\t{}\t{}\t{}",
-                            hap_name,
-                            hap_start + i + offset,
-                            hap_start + i + offset + 2,
+                            path.name,
+                            path.start + i + offset,
+                            path.start + i + offset + 2,
                             cpg.2
-                        ));
+                        ))
+                        .unwrap();
                     }
                 }
                 i += node_lengths.get(&node_name).unwrap();
             }
         });
     drop(tx);
+    writer.join().unwrap();
 }

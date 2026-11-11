@@ -25,11 +25,16 @@ The format of this CSV file is:
  and the likelihoods of modification must be encoded in the ~ML~ tag.
 
 + ~--graph~ - Pangenome in GFA format.
-+ ~--lift~ - Lift nucleotide positions from graph coordinates to path (assembly) coordinates. Assumes GFA with ~P~ lines. Useful for generating frequency distributions.
++ ~--lift~ - Lift nucleotide positions from graph coordinates to path (assembly) coordinates. Supports GFA ~P~ lines and ~W~ lines. Useful for generating frequency distributions.
 + ~--bed~ - BED file enumerating the intervals over which to summarize modification levels. Intervals must be in path (assembly) coordinates.
 + ~--aligner~ - Choose which aligner will map the reads to the graph. Possibilities are `minigraph` and `GraphAligner`.
 + ~--code~ - Modification code in hte MM/ML tags, according to the SAM spec. For example, ~C+m~.
 + ~--motif~ - Nucleotides (or dinucleotides)  targeted by the modification. Possible values are ~A~, ~T~, ~G~, ~C~, ~CG~.
+
+W-line tracks use ~sample#haplotype#sequence~ names and add the W record's
+sequence-start coordinate to motif positions. When sequence start is ~*~,
+coordinates are relative to the beginning of that walk (zero). P-line names
+and bracketed start offsets retain their existing behavior.
 
 
 ** Outputs
