@@ -201,7 +201,7 @@ class GfaPathTests(unittest.TestCase):
                          "-ansi-log", "false", "--graph", str(graph),
                          "--lift", "true", "--out", str(output)],
                         cwd=directory, text=True, capture_output=True, timeout=180,
-                        env={**os.environ, "NXF_SYNTAX_PARSER": "v1",
+                        env={**os.environ, "NXF_SYNTAX_PARSER": "v2",
                              "NXF_OFFLINE": "true"},
                     )
                     self.assertEqual(

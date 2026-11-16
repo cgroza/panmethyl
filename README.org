@@ -7,6 +7,9 @@ Panmethyl is a nextflow pipeline that maps epigenetic data from long-reads to pa
 apptainer pull --arch amd64 panmethyl.sif library://cgroza/collection/panmethyl:latest
 #+end_src
 
+The workflow supports Nextflow's strict (v2) syntax parser, validated with
+Nextflow 26.10.2. No ~NXF_SYNTAX_PARSER=v1~ override is needed.
+
 ** Inputs
 It takes the following inputs:
 
