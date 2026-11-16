@@ -1,7 +1,12 @@
-include { annotate_VCF; index_graph; align_graphaligner; align_minigraph; align_giraffe; bamtags_to_BED; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
+include { decompress_graph; annotate_VCF; index_graph; align_graphaligner; align_minigraph; align_giraffe; bamtags_to_BED; merge_CSV; BED_to_graph; annotate_BED; merge_BED; lift_epigenome; lift_nucleotides } from './module'
 
 workflow {
-  Channel.fromPath(params.graph).set{graph_ch}
+  Channel.fromPath(params.graph).set{graph_input_ch}
+  if (params.graph.toString().toLowerCase() ==~ /.*[.](gz|bgz|bgzf)/) {
+    graph_ch = decompress_graph(graph_input_ch)
+  } else {
+    graph_ch = graph_input_ch
+  }
 
   graph_index = channel.empty()
   if(params.index) {

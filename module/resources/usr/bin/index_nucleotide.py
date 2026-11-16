@@ -1,7 +1,12 @@
 #!/opt/pypy3/bin/pypy3
+import gzip
+import io
 import sys
 
-gfa = open(sys.argv[1])
+gfa = open(sys.argv[1], "rb")
+if gfa.peek(2).startswith(b"\x1f\x8b"):
+    gfa = gzip.GzipFile(fileobj=gfa)
+gfa = io.TextIOWrapper(gfa)
 nuc = sys.argv[2]
 
 complement = {"A" : "T",

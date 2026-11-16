@@ -2,7 +2,7 @@ use flate2::read::GzDecoder;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Seek, SeekFrom};
+use std::io::{BufRead, BufReader};
 use std::sync::mpsc::sync_channel;
 
 mod gfa;
@@ -40,8 +40,7 @@ fn main() {
     }
 
     // Build node_lengths from GFA
-    let mut gfa = File::open(&gfa_file).unwrap();
-    let reader = BufReader::new(&gfa);
+    let reader = gfa::open_reader(&gfa_file).expect("Cannot open GFA file");
     let mut node_lengths: HashMap<usize, usize> = HashMap::new();
 
     for line in reader.lines() {
@@ -57,9 +56,8 @@ fn main() {
         }
     }
 
-    // Rewind GFA file and process paths and walks in parallel
-    gfa.seek(SeekFrom::Start(0)).unwrap();
-    let reader = BufReader::new(gfa);
+    // Reopen the graph for a second pass, including compressed input.
+    let reader = gfa::open_reader(&gfa_file).expect("Cannot reopen GFA file");
 
     let nuc_index = &nuc_index;
     let node_lengths = &node_lengths;

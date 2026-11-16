@@ -1,3 +1,16 @@
+use flate2::read::MultiGzDecoder;
+use std::fs::File;
+use std::io::{self, BufRead, BufReader};
+
+pub fn open_reader(path: &str) -> io::Result<Box<dyn BufRead + Send>> {
+    let mut reader = BufReader::new(File::open(path)?);
+    if reader.fill_buf()?.starts_with(&[0x1f, 0x8b]) {
+        Ok(Box::new(BufReader::new(MultiGzDecoder::new(reader))))
+    } else {
+        Ok(Box::new(reader))
+    }
+}
+
 pub struct GraphPath {
     pub name: String,
     pub start: usize,

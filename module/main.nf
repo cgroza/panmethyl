@@ -1,3 +1,16 @@
+process decompress_graph {
+  input:
+  path(graph)
+
+  output:
+  path("decompressed.gfa")
+
+  script:
+  """
+  gzip -dc "${graph}" > decompressed.gfa
+  """
+}
+
 process annotate_VCF {
   publishDir "${params.out}/annotation/", mode: 'copy'
   input:

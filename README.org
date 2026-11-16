@@ -24,7 +24,7 @@ The format of this CSV file is:
  For example, the location of modified bases must be encoded in the ~MM~ tag
  and the likelihoods of modification must be encoded in the ~ML~ tag.
 
-+ ~--graph~ - Pangenome in GFA format.
++ ~--graph~ - Pangenome in plain or gzip/BGZF-compressed GFA format.
 + ~--lift~ - Lift nucleotide positions from graph coordinates to path (assembly) coordinates. Supports GFA ~P~ lines and ~W~ lines. Useful for generating frequency distributions.
 + ~--bed~ - BED file enumerating the intervals over which to summarize modification levels. Intervals must be in path (assembly) coordinates.
 + ~--aligner~ - Choose which aligner will map the reads to the graph. Possibilities are `minigraph` and `GraphAligner`.
@@ -35,6 +35,13 @@ W-line tracks use ~sample#haplotype#sequence~ names and add the W record's
 sequence-start coordinate to motif positions. When sequence start is ~*~,
 coordinates are relative to the beginning of that walk (zero). P-line names
 and bracketed start offsets retain their existing behavior.
+
+Compressed graphs passed to ~--graph~ must end in ~.gz~, ~.bgz~, or ~.bgzf~.
+Nextflow decompresses them once in its work directory before downstream
+tasks, including external aligners; allow disk space for the uncompressed
+graph. The standalone ~index_nucleotide.py~, ~lift_offsets~, and ~lift_edges~
+tools detect gzip/BGZF by content and read it directly, including multi-block
+BGZF files. Plain GFA remains supported.
 
 
 ** Outputs
