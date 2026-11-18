@@ -221,6 +221,19 @@ class GfaPathTests(unittest.TestCase):
                     else:
                         self.assertEqual(actual, expected)
 
+            failed_output = directory / "failed-index"
+            result = subprocess.run(
+                ["nextflow", "run", str(ROOT), "-c", str(config),
+                 "-ansi-log", "false", "--graph", str(graph),
+                 "--motif", "CGT", "--out", str(failed_output)],
+                cwd=directory, text=True, capture_output=True, timeout=180,
+                env={**os.environ, "NXF_SYNTAX_PARSER": "v2",
+                     "NXF_OFFLINE": "true"},
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Unsupported motif", result.stdout + result.stderr)
+            self.assertFalse((failed_output / "index/index.csv.gz").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -89,6 +89,7 @@ process index_graph {
 
   script:
   """
+  set -o pipefail
   awk '\$1 == "S" {print \$2, length(\$3)}' ${graph_path} > node_sizes.csv
   awk '{print \$1}' node_sizes.csv > nodes_list.csv
   index_nucleotide.py ${graph_path} ${motif} | gzip > index.csv.gz
