@@ -12,7 +12,7 @@ fn main() {
     let gfa_file = std::env::args().nth(2).expect("Missing GFA file");
 
     // Build nuc_index from gzipped cpgs file
-    let mut nuc_index: HashMap<usize, Vec<(usize, String, String)>> = HashMap::new();
+    let mut nuc_index: HashMap<usize, HashMap<String, (Option<usize>, usize)>> = HashMap::new();
     let gz = GzDecoder::new(File::open(cpgs_file).unwrap());
     let reader = BufReader::new(gz);
 
@@ -29,14 +29,16 @@ fn main() {
         if nucset.contains(' ') {
             continue;
         }
+        let motif = nuc_index
+            .entry(node)
+            .or_default()
+            .entry(nucset.to_string())
+            .or_insert((None, 1));
         if strand == "-" {
-            continue;
+            motif.1 = 2;
+        } else {
+            motif.0 = Some(offset);
         }
-        nuc_index.entry(node).or_insert_with(Vec::new).push((
-            offset,
-            strand.to_string(),
-            nucset.to_string(),
-        ));
     }
 
     // Build node_lengths from GFA
@@ -82,17 +84,19 @@ fn main() {
             let mut i = 0usize;
             for (node_name, strand) in path.nodes {
                 if let Some(cpgs) = nuc_index.get(&node_name) {
-                    for cpg in cpgs {
-                        let mut offset = cpg.0;
+                    for (name, &(forward_offset, width)) in cpgs {
+                        let Some(mut offset) = forward_offset else {
+                            continue;
+                        };
                         if strand == "-" {
-                            offset = node_lengths.get(&node_name).unwrap() - offset - 1;
+                            offset = node_lengths.get(&node_name).unwrap() - offset - width;
                         }
                         tx_.send(format!(
                             "{}\t{}\t{}\t{}",
                             path.name,
                             path.start + i + offset,
                             path.start + i + offset + 2,
-                            cpg.2
+                            name
                         ))
                         .unwrap();
                     }

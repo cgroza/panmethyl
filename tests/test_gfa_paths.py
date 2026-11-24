@@ -81,13 +81,52 @@ class GfaPathTests(unittest.TestCase):
             "W\tsample\t0\tmixed\t0\t8\t>1<2\n"
         )
         self.assertEqual(tracks, sorted([
-            "sample#0#reverse\t12\t14\t2,1,+",
+            "sample#0#reverse\t11\t13\t2,1,+",
             "sample#0#reverse\t13\t15\t>1 >2",
-            "sample#0#reverse\t16\t18\t1,1,+",
+            "sample#0#reverse\t15\t17\t1,1,+",
             "sample#0#single\t1\t3\t1,1,+",
             "sample#0#mixed\t1\t3\t1,1,+",
-            "sample#0#mixed\t6\t8\t2,1,+",
+            "sample#0#mixed\t5\t7\t2,1,+",
         ]))
+
+    def test_reverse_internal_cpg_intervals_and_single_base_compatibility(self):
+        with tempfile.TemporaryDirectory() as work:
+            directory = Path(work)
+            graph = directory / "graph.gfa"
+            graph.write_text(
+                "S\t1\tCGACG\n"
+                "P\tforward[10-15]\t1+\t*\nP\treverse[20-25]\t1-\t*\n"
+                "W\tsample\t0\treverse\t30\t35\t<1\n"
+            )
+            for motif, expected in [
+                ("CG", [
+                    "forward\t10\t12\t1,0,+", "forward\t13\t15\t1,3,+",
+                    "reverse\t20\t22\t1,3,+", "reverse\t23\t25\t1,0,+",
+                    "sample#0#reverse\t30\t32\t1,3,+",
+                    "sample#0#reverse\t33\t35\t1,0,+",
+                ]),
+                ("A", [
+                    "forward\t12\t14\t1,2,+", "reverse\t22\t24\t1,2,+",
+                    "sample#0#reverse\t32\t34\t1,2,+",
+                ]),
+            ]:
+                with self.subTest(motif=motif):
+                    index = subprocess.run(
+                        [sys.executable,
+                         str(ROOT / "module/resources/usr/bin/index_nucleotide.py"),
+                         str(graph), motif],
+                        check=True, text=True, capture_output=True,
+                    ).stdout
+                    # Paired rows need not be adjacent or ordered in a supplied index.
+                    index_file = directory / "index.gz"
+                    with gzip.open(index_file, "wt") as out:
+                        out.write("\n".join(reversed(index.splitlines())) + "\n")
+                    tracks = subprocess.run(
+                        [str(ROOT / "tagtobed/target/debug/lift_offsets"),
+                         str(index_file), str(graph)],
+                        check=True, text=True, capture_output=True,
+                    ).stdout
+                    self.assertEqual(sorted(tracks.splitlines()), sorted(expected))
 
     def test_compressed_graphs_match_plain_index_and_tracks(self):
         data = (
@@ -157,6 +196,54 @@ class GfaPathTests(unittest.TestCase):
                     )
                     self.assertNotEqual(result.returncode, 0)
                     self.assertTrue(result.stderr)
+
+    def test_comparison_matches_cpgs_across_segment_boundaries(self):
+        graphs = [
+            "S\t1\tACGC\nS\t2\tGCGT\nL\t1\t+\t2\t+\t0M\n"
+            "W\tsample\t1\tchr1\t0\t8\t>1>2\n",
+            "S\t101\tAC\nS\t102\tACGCGC\nL\t101\t+\t102\t-\t0M\n"
+            "W\tsample\t1\tchr1\t0\t8\t>101<102\n",
+        ]
+        with tempfile.TemporaryDirectory() as work:
+            directory = Path(work)
+            tracks = []
+            for number, data in enumerate(graphs):
+                graph = directory / f"graph{number}.gfa"
+                graph.write_text(data)
+                index = subprocess.run(
+                    [sys.executable,
+                     str(ROOT / "module/resources/usr/bin/index_nucleotide.py"),
+                     str(graph), "CG"],
+                    check=True, text=True, capture_output=True,
+                ).stdout
+                index_file = directory / f"index{number}.gz"
+                with gzip.open(index_file, "wt") as out:
+                    out.write(index)
+                track = directory / f"tracks{number}.bed"
+                with track.open("w") as out:
+                    for binary in ["lift_offsets", "lift_edges"]:
+                        subprocess.run(
+                            [str(ROOT / "tagtobed/target/debug" / binary),
+                             str(index_file), str(graph)],
+                            check=True, text=True, stdout=out,
+                        )
+                tracks.append(track)
+            output = directory / "comparison"
+            subprocess.run(
+                [sys.executable,
+                 str(ROOT / "module/resources/usr/bin/compare_cpg_tracks.py"),
+                 *[str(track) for track in tracks], "--out", str(output)],
+                check=True, text=True, capture_output=True,
+            )
+            self.assertEqual(
+                (output / "shared.tsv").read_text(),
+                "path\tstart\tend\tleft_cpg\tright_cpg\n"
+                "sample#1#chr1\t1\t3\t1,1,+\t>101 <102\n"
+                "sample#1#chr1\t3\t5\t>1 >2\t102,3,+\n"
+                "sample#1#chr1\t5\t7\t2,1,+\t102,1,+\n",
+            )
+            self.assertEqual((output / "left_only.bed").read_text(), "")
+            self.assertEqual((output / "right_only.bed").read_text(), "")
 
     @unittest.skipUnless(shutil.which("nextflow"), "Nextflow is not installed")
     def test_pipeline_indexes_and_lifts_compressed_graphs(self):
